@@ -3,7 +3,12 @@ package dxw405;
 import dxw405.util.Logging;
 
 import javax.mail.*;
+import javax.mail.internet.InternetAddress;
 import java.io.Closeable;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import java.util.Properties;
 
 public class Mailbox implements Closeable
@@ -52,21 +57,6 @@ public class Mailbox implements Closeable
 		}
 	}
 
-	/**
-	 * @return The messages in the inbox. An empty array will be returned if the operation failed
-	 */
-	public Message[] getMessages()
-	{
-		try
-		{
-			return inbox.getMessages();
-		} catch (MessagingException e)
-		{
-			Logging.severe("Could not get messages", e);
-			return new Message[]{};
-		}
-	}
-
 	@Override
 	public void close()
 	{
@@ -84,5 +74,98 @@ public class Mailbox implements Closeable
 		{
 			Logging.severe("Could not close folder/store", me);
 		}
+	}
+
+	/**
+	 * @return The emails in the inbox. An empty list will be returned if the operation failed
+	 */
+	public List<Email> getEmails()
+	{
+		List<Email> emails = new ArrayList<>();
+
+		try
+		{
+			Message[] messages = inbox.getMessages();
+			for (Message message : messages)
+			{
+				String subject = message.getSubject();
+				String from = getSenders(message);
+				String to = getRecipients(message);
+				String content = getContent(message);
+				Date date = message.getReceivedDate();
+
+				Email email = new Email(subject, from, to, content, date);
+				emails.add(email);
+			}
+
+
+		} catch (MessagingException e)
+		{
+			Logging.severe("Could not get messages", e);
+		}
+
+		return emails;
+	}
+
+	private String getSenders(Message message)
+	{
+		try
+		{
+			Address[] addresses = message.getFrom();
+			if (addresses == null)
+				return "";
+
+			return concatEmails(addresses);
+
+		} catch (MessagingException e)
+		{
+			Logging.warning("Could not parse senders", e);
+			return "";
+		}
+	}
+
+	private String getRecipients(Message message)
+	{
+		try
+		{
+			Address[] addresses = message.getRecipients(Message.RecipientType.TO);
+			if (addresses == null)
+				return "";
+
+			return concatEmails(addresses);
+
+
+		} catch (MessagingException e)
+		{
+			Logging.warning("Could not parse recipients", e);
+			return "";
+		}
+	}
+
+	private String getContent(Message message)
+	{
+		try
+		{
+			return message.getContentType().equals("TEXT/PLAIN") ? (String) message.getContent() : "";
+		} catch (MessagingException | IOException e)
+		{
+			Logging.warning("Could not get message content", e);
+			return "";
+		}
+
+	}
+
+	private String concatEmails(Address[] addresses)
+	{
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0, addressesLength = addresses.length; i < addressesLength; i++)
+		{
+			InternetAddress from = (InternetAddress) addresses[i];
+			sb.append(from.getAddress());
+			if (i != addressesLength - 1)
+				sb.append(", ");
+		}
+
+		return sb.toString();
 	}
 }
