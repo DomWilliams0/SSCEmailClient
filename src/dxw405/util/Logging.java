@@ -9,7 +9,8 @@ import java.util.logging.Logger;
 
 public class Logging
 {
-	private static final Logging INSTANCE = new Logging();
+	private static Logging INSTANCE = new Logging();
+
 	private static final Level STACK_TRACE_LEVEL = Level.FINER;
 
 	private Logger logger;
@@ -17,24 +18,27 @@ public class Logging
 	private Logging()
 	{
 		// default logger
-		initiate("DEFAULT", Level.INFO);
+		logger = Logger.getGlobal();
 	}
 
-	public void initiate(String name, Level logLevel)
+	public static void initiate(String name, Level logLevel)
 	{
-		logger = Logger.getLogger(name);
+		if (INSTANCE == null)
+			INSTANCE = new Logging();
 
-		logger.setLevel(logLevel);
+		INSTANCE.logger = Logger.getLogger(name);
+
+		INSTANCE.logger.setLevel(logLevel);
 
 		// log formatting
 		System.setProperty("java.util.logging.SimpleFormatter.format", "%1$tH:%1$tM:%1$tS [%4$7s] %5$s%6$s%n");
 		System.setProperty("java.util.logging.ConsoleHandler.formatter", "java.util.logging.SimpleFormatter");
 
 		// log level publishing
-		logger.setUseParentHandlers(false);
+		INSTANCE.logger.setUseParentHandlers(false);
 		ConsoleHandler handler = new ConsoleHandler();
 		handler.setLevel(logLevel);
-		logger.addHandler(handler);
+		INSTANCE.logger.addHandler(handler);
 	}
 
 	public static void stackTrace(Exception e)

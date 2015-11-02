@@ -17,9 +17,9 @@ public class Config
 		this.properties = new Properties();
 	}
 
-	public boolean load(File configFile)
+	public boolean load(String filePath)
 	{
-		FileInputStream inStream = Utils.readFile(configFile);
+		FileInputStream inStream = Utils.readFile(new File(filePath));
 		if (inStream == null)
 			return false;
 
@@ -30,7 +30,7 @@ public class Config
 			return true;
 		} catch (IOException e)
 		{
-			Logging.severe("Could not load config file (" + configFile.getPath() + "): " + e);
+			Logging.severe("Could not load config file (" + filePath + "): " + e);
 			return false;
 		}
 	}
