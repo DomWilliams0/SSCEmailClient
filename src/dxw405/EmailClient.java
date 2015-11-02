@@ -2,6 +2,7 @@ package dxw405;
 
 import dxw405.util.Config;
 import dxw405.util.Logging;
+import dxw405.util.Utils;
 
 import javax.mail.*;
 import java.util.Properties;
@@ -23,8 +24,9 @@ public class EmailClient
 		if (config.isInvalid())
 			halt("Could not load config");
 
-		// init logger from config level todo
-		Logging.initiate("SSCEmailClient", Level.FINER);
+		// init logger
+		Level level = Utils.stringToLevel(config.get("log-level"), Level.INFO);
+		Logging.initiate("SSCEmailClient", level);
 
 		Logging.fine("Config and logger initiated successfully");
 	}
