@@ -44,10 +44,10 @@ public class EmailClient
 		if (creds.isInvalid())
 			halt("Could not load account credentials");
 
-		String user = creds.get("email-address");
-		String password = creds.get("email-password");
-		String host = creds.get("email-incoming-server");
-		int port = creds.getInt("email-incoming-port");
+		String user = creds.get("address");
+		String password = creds.get("password");
+		String host = creds.get("incoming-server");
+		int port = creds.getInt("incoming-port");
 
 		// imap properties
 		Properties imapProperties = System.getProperties();
