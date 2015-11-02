@@ -127,30 +127,33 @@ public class Utils
 	/**
 	 * Converts a string to a log level
 	 *
-	 * @param s String to parse
+	 * @param s            String to parse
+	 * @param defaultLevel The default value to return if the given string is invalid
 	 * @return The corresponding log level, or null if invalid
 	 */
-	public static Level stringToLevel(String s)
+	public static Level stringToLevel(String s, Level defaultLevel)
 	{
 		try
 		{
 			return Level.parse(s.toUpperCase());
 		} catch (IllegalArgumentException e)
 		{
-			return null;
+			Logging.warning("Invalid log level, defaulting to " + defaultLevel);
+			return defaultLevel;
 		}
 	}
 
 	/**
 	 * Converts a String into an Enum
 	 *
-	 * @param enumClass The enum
-	 * @param s         The string to parse
+	 * @param enumClass    The enum
+	 * @param s            The string to parse
+	 * @param defaultValue The default value to return if the given string is invalid
 	 * @return The corresponding enum value, or null if none was found
 	 */
-	public static <E extends Enum<E>> E parseEnum(Class<E> enumClass, String s)
+	public static <E extends Enum<E>> E parseEnum(Class<E> enumClass, String s, E defaultValue)
 	{
-		return parseEnum(enumClass, s, true);
+		return parseEnum(enumClass, s, defaultValue, true);
 	}
 
 	/**
@@ -159,16 +162,17 @@ public class Utils
 	 * @param enumClass      The enum
 	 * @param s              The string to parse
 	 * @param convertToUpper If the given string should be converted to uppercase before comparison
+	 * @param defaultValue   The default value to return if the given string is invalid
 	 * @return The corresponding enum value, or null if none was found
 	 */
-	public static <E extends Enum<E>> E parseEnum(Class<E> enumClass, String s, boolean convertToUpper)
+	public static <E extends Enum<E>> E parseEnum(Class<E> enumClass, String s, E defaultValue, boolean convertToUpper)
 	{
 		EnumSet<E> values = EnumSet.allOf(enumClass);
 		String sCompare = convertToUpper ? s.toUpperCase() : s;
 		for (E value : values)
 			if (value.toString().equals(sCompare))
 				return value;
-		return null;
+		return defaultValue;
 	}
 
 
