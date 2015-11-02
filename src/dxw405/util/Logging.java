@@ -57,6 +57,19 @@ public class Logging
 
 	public static void severe(String msg) {INSTANCE.logger.severe(msg);}
 
+	/**
+	 * Helper for logging exceptions
+	 * The given message is logged (with the exception message appended, followed by the stack trace
+	 *
+	 * @param e   The exception
+	 * @param msg The log message
+	 */
+	public static void severe(Exception e, String msg)
+	{
+		severe(msg + " (" + e.getMessage() + ")");
+		stackTrace(e);
+	}
+
 	public static void warning(String msg) {INSTANCE.logger.warning(msg);}
 
 	public static void info(String msg) {INSTANCE.logger.info(msg);}
