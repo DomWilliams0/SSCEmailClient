@@ -2,10 +2,7 @@ package dxw405;
 
 import dxw405.util.Logging;
 
-import javax.mail.Folder;
-import javax.mail.MessagingException;
-import javax.mail.Session;
-import javax.mail.Store;
+import javax.mail.*;
 import java.io.Closeable;
 import java.util.Properties;
 
@@ -14,6 +11,15 @@ public class Mailbox implements Closeable
 	private Store store;
 	private Folder inbox;
 
+	/**
+	 * Connects to the given mailbox
+	 *
+	 * @param host     The imap server
+	 * @param port     The port to connect to
+	 * @param user     The email address
+	 * @param password The password
+	 * @return If the operation was successful
+	 */
 	public boolean connect(String host, int port, String user, String password)
 	{
 		// imap properties
@@ -43,6 +49,21 @@ public class Mailbox implements Closeable
 			Logging.severe(e, "Could not connect to mailbox");
 			close();
 			return false;
+		}
+	}
+
+	/**
+	 * @return The messages in the inbox. An empty array will be returned if the operation failed
+	 */
+	public Message[] getMessages()
+	{
+		try
+		{
+			return inbox.getMessages();
+		} catch (MessagingException e)
+		{
+			Logging.severe(e, "Could not get messages");
+			return new Message[]{};
 		}
 	}
 
