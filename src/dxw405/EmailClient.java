@@ -15,8 +15,8 @@ public class EmailClient
 	public EmailClient()
 	{
 		// init config
-		Config config = new Config();
-		if (!config.load("res/config.properties"))
+		Config config = new Config("res/config.properties");
+		if (config.isInvalid())
 			halt("Could not load config");
 
 		// init logger from config level todo

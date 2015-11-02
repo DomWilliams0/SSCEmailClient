@@ -11,13 +11,15 @@ import java.util.Properties;
 public class Config
 {
 	private Properties properties;
+	private boolean invalid;
 
-	public Config()
+	public Config(String filePath)
 	{
 		this.properties = new Properties();
+		this.invalid = !load(filePath);
 	}
 
-	public boolean load(String filePath)
+	private boolean load(String filePath)
 	{
 		FileInputStream inStream = Utils.readFile(new File(filePath));
 		if (inStream == null)
@@ -70,5 +72,10 @@ public class Config
 			default:
 				throw new IllegalArgumentException("Cannot get boolean from config (" + key + "=" + value + ")");
 		}
+	}
+
+	public boolean isInvalid()
+	{
+		return invalid;
 	}
 }
