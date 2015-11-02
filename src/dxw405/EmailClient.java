@@ -19,7 +19,7 @@ public class EmailClient
 	public EmailClient()
 	{
 		// init config
-		Config config = new Config("res/config.properties");
+		config = new Config("res/config.properties");
 		if (config.isInvalid())
 			halt("Could not load config");
 
@@ -38,9 +38,8 @@ public class EmailClient
 
 	private void run()
 	{
-
 		// load credentials
-		Config creds = new Config("res/account.properties");
+		Config creds = new Config(config.get("email-account"));
 		if (creds.isInvalid())
 			halt("Could not load account credentials");
 
