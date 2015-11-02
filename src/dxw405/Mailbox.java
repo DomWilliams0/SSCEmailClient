@@ -46,7 +46,7 @@ public class Mailbox implements Closeable
 
 		} catch (MessagingException e)
 		{
-			Logging.severe(e, "Could not connect to mailbox");
+			Logging.severe("Could not connect to mailbox", e);
 			close();
 			return false;
 		}
@@ -62,7 +62,7 @@ public class Mailbox implements Closeable
 			return inbox.getMessages();
 		} catch (MessagingException e)
 		{
-			Logging.severe(e, "Could not get messages");
+			Logging.severe("Could not get messages", e);
 			return new Message[]{};
 		}
 	}
@@ -82,7 +82,7 @@ public class Mailbox implements Closeable
 
 		} catch (MessagingException me)
 		{
-			Logging.severe(me, "Could not close folder/store");
+			Logging.severe("Could not close folder/store", me);
 		}
 	}
 }

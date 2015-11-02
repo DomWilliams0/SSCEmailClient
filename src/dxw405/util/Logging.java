@@ -61,12 +61,25 @@ public class Logging
 	 * Helper for logging exceptions
 	 * The given message is logged (with the exception message appended, followed by the stack trace
 	 *
-	 * @param e   The exception
 	 * @param msg The log message
+	 * @param e   The exception
 	 */
-	public static void severe(Exception e, String msg)
+	public static void severe(String msg, Exception e)
 	{
 		severe(msg + " (" + e.getMessage() + ")");
+		stackTrace(e);
+	}
+
+	/**
+	 * Helper for logging exceptions
+	 * The given message is logged (with the exception message appended, followed by the stack trace
+	 *
+	 * @param msg The log message
+	 * @param e   The exception
+	 */
+	public static void warning(String msg, Exception e)
+	{
+		warning(msg + " (" + e.getMessage() + ")");
 		stackTrace(e);
 	}
 
