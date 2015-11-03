@@ -5,6 +5,9 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.util.Collections;
+import java.util.LinkedHashSet;
 
 public class EmailComposePanel extends JPanel
 {
@@ -28,35 +31,12 @@ public class EmailComposePanel extends JPanel
 
 	private JPanel createHeader()
 	{
-		JPanel container = new JPanel(new BorderLayout());
+		JPanel panel = new JPanel(new BorderLayout());
 
-		GridBagConstraints c = new GridBagConstraints();
-		c.fill = GridBagConstraints.HORIZONTAL;
-		c.gridx = 0;
-		c.insets.top = c.insets.left = c.insets.bottom = c.insets.right = BORDER_THICKNESS;
-		c.weighty = 1;
-		c.weightx = 2;
+		panel.add(createEmailFieldHeaders(), BorderLayout.CENTER);
+		panel.add(new AttachmentSelection(), BorderLayout.SOUTH);
 
-		// labels
-		JPanel labelPanel = new JPanel(new GridBagLayout());
-		for (Field field : FIELDS)
-		{
-			JLabel label = new JLabel(field.name, SwingConstants.RIGHT);
-
-			if (field.isAddress)
-				label.setToolTipText("Separate addresses with a semi-colon (;)");
-			labelPanel.add(label, c);
-		}
-
-		// field
-		JPanel fieldPanel = new JPanel(new GridBagLayout());
-
-		for (Field FIELD : FIELDS)
-			fieldPanel.add(new JTextField(FIELD.defaultValue), c);
-
-		container.add(labelPanel, BorderLayout.WEST);
-		container.add(fieldPanel, BorderLayout.CENTER);
-		return container;
+		return panel;
 	}
 
 	private JPanel createBody()
@@ -80,6 +60,38 @@ public class EmailComposePanel extends JPanel
 		return controlPanel;
 	}
 
+	private JPanel createEmailFieldHeaders()
+	{
+		JPanel container = new JPanel(new BorderLayout());
+
+		GridBagConstraints c = new GridBagConstraints();
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.gridx = 0;
+		c.insets.top = c.insets.left = c.insets.bottom = c.insets.right = BORDER_THICKNESS;
+		c.weighty = 1;
+		c.weightx = 2;
+
+		// labels
+		JPanel labelPanel = new JPanel(new GridBagLayout());
+		for (Field field : FIELDS)
+		{
+			JLabel label = new JLabel(field.name, SwingConstants.RIGHT);
+
+			if (field.isAddress)
+				label.setToolTipText("Separate addresses with a semi-colon (;)");
+			labelPanel.add(label, c);
+		}
+
+		// fields
+		JPanel fieldPanel = new JPanel(new GridBagLayout());
+
+		for (Field FIELD : FIELDS)
+			fieldPanel.add(new JTextField(FIELD.defaultValue), c);
+
+		container.add(labelPanel, BorderLayout.WEST);
+		container.add(fieldPanel, BorderLayout.CENTER);
+		return container;
+	}
 
 	private static class Field
 	{
@@ -104,4 +116,70 @@ public class EmailComposePanel extends JPanel
 			JOptionPane.showMessageDialog(EmailComposePanel.this, "Send!");
 		}
 	}
+
+}
+
+class AttachmentSelection extends JPanel implements ActionListener
+{
+	private LinkedHashSet<File> attachments;
+	private JPanel attachmentPanel;
+	private JButton addButton;
+
+	public AttachmentSelection()
+	{
+		attachments = new LinkedHashSet<>();
+
+		setLayout(new BorderLayout());
+
+		attachmentPanel = new JPanel();
+		attachmentPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+		this.addButton = new JButton("Add Attachment");
+		this.addButton.addActionListener(this);
+		attachmentPanel.add(this.addButton);
+
+		JScrollPane scrollPane = new JScrollPane(attachmentPanel);
+		scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
+		scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
+
+		add(scrollPane, BorderLayout.CENTER);
+	}
+
+	private JPanel createAttachment(File file)
+	{
+		JPanel attachment = new JPanel();
+
+		attachment.add(new JLabel(file.getName()));
+
+		return attachment;
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent e)
+	{
+		JFileChooser chooser = new JFileChooser();
+		chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+		chooser.setMultiSelectionEnabled(true);
+
+		int result = chooser.showOpenDialog(this);
+		if (result != JFileChooser.APPROVE_OPTION)
+			return;
+
+		File[] chosenFiles = chooser.getSelectedFiles();
+		if (chosenFiles == null || chosenFiles.length == 0)
+			return;
+
+		Collections.addAll(attachments, chosenFiles);
+		updateAttachments();
+	}
+
+	private void updateAttachments()
+	{
+		attachmentPanel.removeAll();
+		attachmentPanel.add(addButton);
+
+		for (File attachment : attachments)
+			attachmentPanel.add(createAttachment(attachment));
+	}
+
+
 }
