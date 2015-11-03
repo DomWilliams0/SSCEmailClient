@@ -5,6 +5,7 @@ import dxw405.Mailbox;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Observable;
@@ -16,7 +17,7 @@ public class EmailListView extends JPanel implements Observer
 	private JList<Email> emailList;
 	private JScrollPane scrollPane;
 
-	public EmailListView(Mailbox mailbox)
+	public EmailListView(MouseListener mouseListener, Mailbox mailbox)
 	{
 		this.mailbox = mailbox;
 
@@ -24,6 +25,7 @@ public class EmailListView extends JPanel implements Observer
 		emailList.setModel(new EmailListModel());
 		emailList.setCellRenderer(new EmailListRenderer());
 		emailList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		emailList.addMouseListener(mouseListener);
 
 		scrollPane = new JScrollPane(emailList);
 		scrollPane.getVerticalScrollBar().setUnitIncrement(10);
