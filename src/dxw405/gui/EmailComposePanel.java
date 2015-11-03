@@ -1,5 +1,6 @@
 package dxw405.gui;
 
+import dxw405.util.JPanelMouseAdapter;
 import dxw405.util.Utils;
 
 import javax.swing.*;
@@ -8,7 +9,6 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.io.File;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -123,7 +123,7 @@ public class EmailComposePanel extends JPanel
 
 }
 
-class AttachmentSelection extends JPanel implements ActionListener, MouseListener
+class AttachmentSelection extends JPanelMouseAdapter implements ActionListener
 {
 	private LinkedHashMap<String, File> attachments;
 	private JPanel attachmentPanel;
@@ -149,13 +149,13 @@ class AttachmentSelection extends JPanel implements ActionListener, MouseListene
 	}
 
 	@Override
-	public void mouseClicked(MouseEvent e)
+	public void mousePressed(MouseEvent e)
 	{
-
+		onClick(e);
 	}
 
 	@Override
-	public void mousePressed(MouseEvent e)
+	public void mouseReleased(MouseEvent e)
 	{
 		onClick(e);
 	}
@@ -220,24 +220,6 @@ class AttachmentSelection extends JPanel implements ActionListener, MouseListene
 
 
 		return attachment;
-	}
-
-	@Override
-	public void mouseReleased(MouseEvent e)
-	{
-		onClick(e);
-	}
-
-	@Override
-	public void mouseEntered(MouseEvent e)
-	{
-
-	}
-
-	@Override
-	public void mouseExited(MouseEvent e)
-	{
-
 	}
 
 

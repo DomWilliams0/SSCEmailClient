@@ -2,13 +2,13 @@ package dxw405.gui;
 
 import dxw405.Email;
 import dxw405.Mailbox;
+import dxw405.util.JPanelMouseAdapter;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 
-public class ControllerPanel extends JPanel implements MouseListener
+public class ControllerPanel extends JPanelMouseAdapter
 {
 	private EmailPreview emailPreview;
 	private EmailListView emailListView;
@@ -71,23 +71,4 @@ public class ControllerPanel extends JPanel implements MouseListener
 
 	}
 
-	@Override
-	public void mousePressed(MouseEvent e)
-	{
-	}
-
-	@Override
-	public void mouseReleased(MouseEvent e)
-	{
-	}
-
-	@Override
-	public void mouseEntered(MouseEvent e)
-	{
-	}
-
-	@Override
-	public void mouseExited(MouseEvent e)
-	{
-	}
 }
