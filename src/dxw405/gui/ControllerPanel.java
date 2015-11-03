@@ -24,7 +24,7 @@ public class ControllerPanel extends JPanel implements MouseListener
 		add(tabbedPane, BorderLayout.CENTER);
 
 		tabbedPane.addTab("Mailbox", createMailboxTab());
-		tabbedPane.addTab("Compose", createComposeTab());
+		tabbedPane.addTab("Compose", new EmailComposePanel());
 
 		// add observer
 		mailbox.addObserver(this.emailListView);
@@ -48,15 +48,6 @@ public class ControllerPanel extends JPanel implements MouseListener
 		splitPane.getRightComponent().setMinimumSize(new Dimension(minBorder, (int) getMinimumSize().getHeight()));
 
 		return splitPane;
-	}
-
-	private JPanel createComposeTab()
-	{
-		JPanel panel = new JPanel();
-
-		panel.add(new JLabel("Composing!"));
-
-		return panel;
 	}
 
 	@Override
