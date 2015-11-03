@@ -180,7 +180,7 @@ public class Mailbox extends Observable implements Closeable
 			IMAPMessage imapMessage = (IMAPMessage) message;
 			imapMessage.setPeek(true);
 
-			if (message.getContentType().contains("TEXT/PLAIN"))
+			if (message.isMimeType("text/*"))
 				return (String) message.getContent();
 
 			StringBuilder sb = new StringBuilder();
@@ -188,8 +188,15 @@ public class Mailbox extends Observable implements Closeable
 			for (int x = 0; x < multipart.getCount(); x++)
 			{
 				BodyPart bodyPart = multipart.getBodyPart(x);
-				if (bodyPart.getContentType().contains("TEXT/PLAIN"))
+				if (bodyPart.isMimeType("text/*"))
 					sb.append(bodyPart.getContent());
+				else
+				{
+					String description = bodyPart.getDescription();
+					if (description==null)
+						description = bodyPart.getContentType();
+					Logging.fine("Ignored message part: " + description);
+				}
 			}
 
 			return sb.toString();
