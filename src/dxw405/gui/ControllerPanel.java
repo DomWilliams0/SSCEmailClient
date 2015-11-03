@@ -58,6 +58,8 @@ public class ControllerPanel extends JPanel implements MouseListener
 		{
 			JList list = (JList) e.getSource();
 			Email selected = (Email) list.getSelectedValue();
+			if (selected == null)
+				return;
 
 			emailPreview.view(selected);
 
