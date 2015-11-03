@@ -1,5 +1,6 @@
 package dxw405;
 
+import com.sun.mail.imap.IMAPMessage;
 import dxw405.util.Logging;
 
 import javax.mail.*;
@@ -108,13 +109,15 @@ public class Mailbox extends Observable implements Closeable
 			for (int i = 0, messagesLength = messages.length; i < messagesLength; i++)
 			{
 				Message message = messages[i];
+				Flags flags = message.getFlags();
+
 				String subject = message.getSubject();
 				String from = getSenders(message);
 				String to = getRecipients(message);
 				String content = getContent(message);
 				Date date = message.getReceivedDate();
 
-				Email email = new Email(subject, from, to, content, date);
+				Email email = new Email(subject, from, to, content, date, flags.contains(Flags.Flag.SEEN));
 				addEmail(email);
 
 				if (monitor != null)
@@ -173,6 +176,9 @@ public class Mailbox extends Observable implements Closeable
 	{
 		try
 		{
+			IMAPMessage imapMessage = (IMAPMessage) message;
+			imapMessage.setPeek(true);
+
 			if (message.getContentType().contains("TEXT/PLAIN"))
 				return (String) message.getContent();
 

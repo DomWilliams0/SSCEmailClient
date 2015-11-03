@@ -43,6 +43,12 @@ public class EmailListView extends JPanel implements Observer
 		((EmailListModel) emailList.getModel()).reset(mailbox.getEmails());
 	}
 
+	public void updateElement(int index)
+	{
+		((EmailListModel)emailList.getModel()).updateElement(index);
+
+	}
+
 	class EmailListModel extends DefaultListModel<Email>
 	{
 
@@ -73,6 +79,10 @@ public class EmailListView extends JPanel implements Observer
 		}
 
 
+		public void updateElement(int index)
+		{
+			fireContentsChanged(this, index, index);
+		}
 	}
 
 	class EmailListRenderer extends JPanel implements ListCellRenderer<Email>
@@ -122,7 +132,7 @@ public class EmailListView extends JPanel implements Observer
 			setBackground(isSelected ? selectedBG : defaultBG);
 
 			// wrap and truncate
-			subject.setText(display(value.getSubject()));
+			subject.setText(display(value.getSubject(), !value.hasBeenRead()));
 			date.setText(display(value.getDate()));
 			from.setText(display(value.getFrom()));
 			return this;
@@ -130,10 +140,17 @@ public class EmailListView extends JPanel implements Observer
 
 		private String display(String s)
 		{
+			return display(s, false);
+		}
+		private String display(String s, boolean bold)
+		{
 			if (s.length() > MAX_STRING_LENGTH)
 				s = s.substring(0, MAX_STRING_LENGTH - 3) + "...";
 
-			return "<html><body style='width: " + scrollPane.getWidth() * 0.6 + "px'>" + s + "</body></html>";
+			double width = scrollPane.getWidth() * 0.6;
+			String fontWeight = bold ? "bold" : "normal";
+
+			return "<html><body style='width: " + width + "px; font-weight:" + fontWeight + "'>" + s + "</body></html>";
 		}
 	}
 }

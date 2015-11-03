@@ -17,7 +17,9 @@ public class Email
 	private Date date;
 	private String dateString;
 
-	public Email(String subject, String from, String to, String content, Date date)
+	private boolean read;
+
+	public Email(String subject, String from, String to, String content, Date date, boolean read)
 	{
 		this.subject = subject;
 		this.from = from;
@@ -25,6 +27,7 @@ public class Email
 		this.content = content;
 		this.date = date;
 		this.dateString = Utils.DATE_FORMATTER.format(date);
+		this.read = read;
 	}
 
 	public String getSubject()
@@ -55,5 +58,15 @@ public class Email
 	public String getDate()
 	{
 		return dateString;
+	}
+
+	public boolean hasBeenRead()
+	{
+		return read;
+	}
+
+	public void setAsRead()
+	{
+		read = true;
 	}
 }

@@ -11,15 +11,18 @@ import java.awt.event.MouseListener;
 public class ControllerPanel extends JPanel implements MouseListener
 {
 	private EmailPreview emailPreview;
+	private EmailListView emailListView;
+	private Mailbox mailbox;
 
 	public ControllerPanel(Mailbox mailbox)
 	{
+		this.mailbox = mailbox;
 
 		JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
 
 		// centre: emails
-		EmailListView emailListView = new EmailListView(this, mailbox);
-		splitPane.setLeftComponent(emailListView);
+		this.emailListView = new EmailListView(this, mailbox);
+		splitPane.setLeftComponent(this.emailListView);
 
 		// right: email view
 		this.emailPreview = new EmailPreview();
@@ -34,7 +37,7 @@ public class ControllerPanel extends JPanel implements MouseListener
 		splitPane.getRightComponent().setMinimumSize(new Dimension(minBorder, (int) getMinimumSize().getHeight()));
 
 		// add observer
-		mailbox.addObserver(emailListView);
+		mailbox.addObserver(this.emailListView);
 	}
 
 
@@ -48,6 +51,12 @@ public class ControllerPanel extends JPanel implements MouseListener
 			Email selected = (Email) list.getSelectedValue();
 
 			emailPreview.view(selected);
+
+			// set as read
+			selected.setAsRead();
+			emailListView.updateElement(list.getSelectedIndex());
+			mailbox.setAsRead(selected);
+
 		}
 
 	}
