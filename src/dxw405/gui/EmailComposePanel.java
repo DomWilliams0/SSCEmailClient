@@ -60,7 +60,7 @@ public class EmailComposePanel extends JPanel
 		final int border = 10;
 		bodyPanel.setBorder(new EmptyBorder(0, border, border, border));
 
-		bodyPanel.add(new JTextArea(""), BorderLayout.CENTER);
+		bodyPanel.add(new JScrollPane(new JTextArea("")), BorderLayout.CENTER);
 
 		return bodyPanel;
 	}
