@@ -37,15 +37,6 @@ public class Config
 		}
 	}
 
-	public String get(String key)
-	{
-		String value = properties.getProperty(key);
-		if (value == null)
-			throw new IllegalArgumentException("Invalid config key: " + key);
-
-		return value;
-	}
-
 	public int getInt(String key)
 	{
 		String value = get(key);
@@ -57,6 +48,15 @@ public class Config
 		{
 			throw new IllegalArgumentException("Cannot get integer from config (" + key + "=" + value + ")");
 		}
+	}
+
+	public String get(String key)
+	{
+		String value = properties.getProperty(key);
+		if (value == null)
+			throw new IllegalArgumentException("Invalid config key: " + key);
+
+		return value;
 	}
 
 	public boolean getBoolean(String key)

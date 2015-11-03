@@ -25,6 +25,29 @@ public class Utils
 	}
 
 	/**
+	 * Opens the given file for reading
+	 *
+	 * @param file The file to read
+	 * @return The file stream, or null if the operation failed
+	 */
+	public static FileInputStream readFile(File file)
+	{
+		if (!validateFile(file))
+			return null;
+
+		FileInputStream stream;
+		try
+		{
+			stream = new FileInputStream(file);
+			return stream;
+		} catch (IOException e)
+		{
+			Logging.severe("Could not load file (" + file.getPath() + "): " + e);
+			return null;
+		}
+	}
+
+	/**
 	 * Validates that the given file is not null and exists
 	 *
 	 * @param file The file to validate
@@ -47,30 +70,6 @@ public class Utils
 		}
 
 		return true;
-	}
-
-
-	/**
-	 * Opens the given file for reading
-	 *
-	 * @param file The file to read
-	 * @return The file stream, or null if the operation failed
-	 */
-	public static FileInputStream readFile(File file)
-	{
-		if (!validateFile(file))
-			return null;
-
-		FileInputStream stream;
-		try
-		{
-			stream = new FileInputStream(file);
-			return stream;
-		} catch (IOException e)
-		{
-			Logging.severe("Could not load file (" + file.getPath() + "): " + e);
-			return null;
-		}
 	}
 
 	/**

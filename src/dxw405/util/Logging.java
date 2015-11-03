@@ -9,6 +9,7 @@ import java.util.logging.Logger;
 
 public class Logging
 {
+	private static final Level STACK_TRACE_LEVEL = Level.FINER;
 	private static Logging INSTANCE;
 
 	static
@@ -19,8 +20,6 @@ public class Logging
 
 		INSTANCE = new Logging();
 	}
-
-	private static final Level STACK_TRACE_LEVEL = Level.FINER;
 
 	private Logger logger;
 
@@ -46,17 +45,6 @@ public class Logging
 		INSTANCE.logger.addHandler(handler);
 	}
 
-	public static void stackTrace(Exception e)
-	{
-		String wrapper = "------------------";
-		StringWriter sw = new StringWriter();
-		PrintWriter pw = new PrintWriter(sw);
-		e.printStackTrace(pw);
-		INSTANCE.logger.log(STACK_TRACE_LEVEL, "\n" + wrapper + "\n" + sw.toString() + wrapper);
-	}
-
-	public static void severe(String msg) {INSTANCE.logger.severe(msg);}
-
 	/**
 	 * Helper for logging exceptions
 	 * The given message is logged (with the exception message appended, followed by the stack trace
@@ -68,6 +56,17 @@ public class Logging
 	{
 		severe(msg + " (" + e.getMessage() + ")");
 		stackTrace(e);
+	}
+
+	public static void severe(String msg) {INSTANCE.logger.severe(msg);}
+
+	public static void stackTrace(Exception e)
+	{
+		String wrapper = "------------------";
+		StringWriter sw = new StringWriter();
+		PrintWriter pw = new PrintWriter(sw);
+		e.printStackTrace(pw);
+		INSTANCE.logger.log(STACK_TRACE_LEVEL, "\n" + wrapper + "\n" + sw.toString() + wrapper);
 	}
 
 	/**
