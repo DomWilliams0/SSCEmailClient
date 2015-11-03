@@ -89,11 +89,12 @@ public class EmailClient
 	 * If this is true, the mailbox is a dummy that doesn't connect to any server
 	 *
 	 * @return A new uninitiated mailbox
+	 * @deprecated Dummy mailbox has been removed
 	 */
 	public Mailbox createBlankMailbox()
 	{
-		if (config.getBoolean("use-dummy"))
-			return new MailboxDummy();
+		//		 if (config.getBoolean("use-dummy"))
+		//		 		return new MailboxDummy();
 
 		return new Mailbox();
 	}
