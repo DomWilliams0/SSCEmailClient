@@ -151,7 +151,20 @@ public class Mailbox extends Observable implements Closeable
 	{
 		try
 		{
-			return message.getContentType().equals("TEXT/PLAIN") ? (String) message.getContent() : "";
+			if (message.getContentType().contains("TEXT/PLAIN"))
+				return (String) message.getContent();
+
+			StringBuilder sb = new StringBuilder();
+			Multipart multipart = (Multipart) message.getContent();
+			for (int x = 0; x < multipart.getCount(); x++)
+			{
+				BodyPart bodyPart = multipart.getBodyPart(x);
+				if (bodyPart.getContentType().contains("TEXT/PLAIN"))
+					sb.append(bodyPart.getContent());
+			}
+
+			return sb.toString();
+
 		} catch (MessagingException | IOException e)
 		{
 			Logging.warning("Could not get message content", e);

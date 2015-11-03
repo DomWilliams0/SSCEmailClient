@@ -39,9 +39,10 @@ public class EmailPreview extends JPanel
 		// centre: content
 		content = new JTextPane();
 		content.setEditable(false);
+		JScrollPane contentScrollPane = new JScrollPane(content);
 
 		add(headerContainer, BorderLayout.NORTH);
-		add(content, BorderLayout.CENTER);
+		add(contentScrollPane, BorderLayout.CENTER);
 	}
 
 	public void view(Email selected)
@@ -53,5 +54,6 @@ public class EmailPreview extends JPanel
 		to.setText("<html><b>To: </b>" + selected.getTo() + "</html>");
 		subject.setText(selected.getSubject());
 		content.setText(selected.getContent());
+		content.setCaretPosition(0);
 	}
 }
