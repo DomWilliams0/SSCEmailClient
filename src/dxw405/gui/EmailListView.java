@@ -6,10 +6,8 @@ import dxw405.Mailbox;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseListener;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.List;
-import java.util.Observable;
-import java.util.Observer;
 
 public class EmailListView extends JPanel implements Observer
 {
@@ -63,6 +61,23 @@ public class EmailListView extends JPanel implements Observer
 		{
 			emails.clear();
 			emails.addAll(newEmails);
+
+			Collections.sort(emails, (e1, e2) -> {
+				// unread first
+				int unreadCompare = Boolean.compare(e1.isRead(), e2.isRead());
+
+				if (unreadCompare != 0)
+					return unreadCompare;
+
+				// recent second
+				int recentCompare = Boolean.compare(e1.isRecent(), e2.isRecent());
+				if (recentCompare != 0)
+					return recentCompare;
+
+				// otherwise by date
+				return -e1.getDateTime().compareTo(e2.getDateTime());
+			});
+
 			fireContentsChanged(this, 0, newEmails.size());
 		}
 
