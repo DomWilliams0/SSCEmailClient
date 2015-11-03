@@ -53,11 +53,17 @@ public class EmailPreview extends JPanel
 		if (selected == null)
 			return;
 
-		from.setText("<html><b>From: </b>" + selected.getFrom() + "</html>");
-		to.setText("<html><b>To: </b>" + selected.getTo() + "</html>");
-		sent.setText("<html><b>Sent: </b>" + selected.getDate() + "</html>");
+		from.setText(makeTitle("From", selected.getFrom()));
+		to.setText(makeTitle("To", selected.getTo()));
+		sent.setText(makeTitle("Sent", selected.getDate()));
 		subject.setText(selected.getSubject());
+
 		content.setText(selected.getContent());
 		content.setCaretPosition(0);
+	}
+
+	private String makeTitle(String label, String field)
+	{
+		return "<html><b>" + label + ": </b>" + field + "</html>";
 	}
 }
