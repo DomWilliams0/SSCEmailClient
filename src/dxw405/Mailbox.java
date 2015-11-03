@@ -145,6 +145,15 @@ public class Mailbox extends Observable implements Closeable
 
 			for (int i = 0, messagesLength = messages.length; i < messagesLength; i++)
 			{
+				// cancelled early
+				if (monitor != null && monitor.isCanceled())
+				{
+					monitor.setNote("Cancelled");
+					Logging.info("Cancelled email collection");
+					emails.clear();
+					break;
+				}
+
 				Message message = messages[i];
 				Flags flags = message.getFlags();
 
