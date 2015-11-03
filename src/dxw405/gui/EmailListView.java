@@ -45,7 +45,7 @@ public class EmailListView extends JPanel implements Observer
 
 	public void updateElement(int index)
 	{
-		((EmailListModel)emailList.getModel()).updateElement(index);
+		((EmailListModel) emailList.getModel()).updateElement(index);
 
 	}
 
@@ -94,6 +94,7 @@ public class EmailListView extends JPanel implements Observer
 		private JLabel subject;
 		private JLabel date;
 		private JLabel from;
+		private JLabel meta;
 
 
 		public EmailListRenderer()
@@ -105,6 +106,7 @@ public class EmailListView extends JPanel implements Observer
 			subject.setFont(subject.getFont().deriveFont(Font.BOLD, 15f));
 
 			from = new JLabel();
+			meta = new JLabel();
 
 			date = new JLabel();
 			date.setAlignmentX(RIGHT_ALIGNMENT);
@@ -119,6 +121,7 @@ public class EmailListView extends JPanel implements Observer
 			container.add(subject, c);
 			container.add(from, c);
 			container.add(date, c);
+			container.add(meta, c);
 			add(container);
 
 			defaultBG = getBackground();
@@ -132,16 +135,18 @@ public class EmailListView extends JPanel implements Observer
 			setBackground(isSelected ? selectedBG : defaultBG);
 
 			// wrap and truncate
-			subject.setText(display(value.getSubject(), !value.hasBeenRead()));
+			subject.setText(display(value.getSubject(), !value.isRead()));
 			date.setText(display(value.getDate()));
 			from.setText(display(value.getFrom()));
+
+			if (value.isRecent())
+				meta.setText("[RECENT]");
+			else
+				meta.setText("");
+
 			return this;
 		}
 
-		private String display(String s)
-		{
-			return display(s, false);
-		}
 		private String display(String s, boolean bold)
 		{
 			if (s.length() > MAX_STRING_LENGTH)
@@ -151,6 +156,11 @@ public class EmailListView extends JPanel implements Observer
 			String fontWeight = bold ? "bold" : "normal";
 
 			return "<html><body style='width: " + width + "px; font-weight:" + fontWeight + "'>" + s + "</body></html>";
+		}
+
+		private String display(String s)
+		{
+			return display(s, false);
 		}
 	}
 }

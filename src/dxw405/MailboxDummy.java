@@ -25,7 +25,7 @@ public class MailboxDummy extends Mailbox
 		{
 			addEmail(new Email("A long email subject! No no no much much longer please!",
 					"sender@gmail.com", "me@gmail.com", "wow this is a long email, telling you all about something",
-					new Date(), Utils.RANDOM.nextBoolean(), null));
+					new Date(), Utils.RANDOM.nextBoolean(), false, null));
 		}
 
 		setChanged();

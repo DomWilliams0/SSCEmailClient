@@ -116,8 +116,10 @@ public class Mailbox extends Observable implements Closeable
 				String to = getRecipients(message);
 				String content = getContent(message);
 				Date date = message.getReceivedDate();
+				boolean read = flags.contains(Flags.Flag.SEEN);
+				boolean recent = flags.contains(Flags.Flag.RECENT);
 
-				Email email = new Email(subject, from, to, content, date, flags.contains(Flags.Flag.SEEN), message);
+				Email email = new Email(subject, from, to, content, date, read, recent, message);
 				addEmail(email);
 
 				if (monitor != null)
@@ -225,7 +227,9 @@ public class Mailbox extends Observable implements Closeable
 	{
 		try
 		{
-			email.getMailboxReference().setFlag(Flags.Flag.SEEN, true);
+			Message mailboxReference = email.getMailboxReference();
+			if (mailboxReference != null)
+				mailboxReference.setFlag(Flags.Flag.SEEN, true);
 		} catch (MessagingException e)
 		{
 			Logging.severe("Could not mark email as read", e);
