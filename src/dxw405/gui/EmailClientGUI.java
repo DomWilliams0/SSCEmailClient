@@ -2,6 +2,7 @@ package dxw405.gui;
 
 import dxw405.EmailClient;
 import dxw405.Mailbox;
+import dxw405.MailboxDummy;
 import dxw405.util.Logging;
 
 import javax.swing.*;
@@ -19,7 +20,7 @@ public class EmailClientGUI
 	public EmailClientGUI(EmailClient emailClient)
 	{
 		this.emailClient = emailClient;
-		this.mailbox = new Mailbox();
+		this.mailbox = new MailboxDummy();
 
 		// show gui
 		initGUI();

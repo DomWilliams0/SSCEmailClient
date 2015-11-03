@@ -99,7 +99,7 @@ public class Mailbox extends Observable implements Closeable
 				Date date = message.getReceivedDate();
 
 				Email email = new Email(subject, from, to, content, date);
-				emails.add(email);
+				addEmail(email);
 			}
 
 
@@ -159,6 +159,8 @@ public class Mailbox extends Observable implements Closeable
 		}
 
 	}
+
+	protected void addEmail(Email email) {emails.add(email);}
 
 	private String concatEmails(Address[] addresses)
 	{
