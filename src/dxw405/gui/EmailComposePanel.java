@@ -133,11 +133,14 @@ class AttachmentSelection extends JPanelMouseAdapter implements ActionListener
 	private JPanel attachmentPanel;
 	private JButton addButton;
 
+	private AttachmentPopup rightClickPopup;
+
 	public AttachmentSelection()
 	{
 		itemCache = new TreeMap<>();
 		itemCacheBuffer = new TreeMap<>();
 		attachments = new LinkedHashMap<>();
+		rightClickPopup = new AttachmentPopup();
 
 		setLayout(new BorderLayout());
 
@@ -176,29 +179,43 @@ class AttachmentSelection extends JPanelMouseAdapter implements ActionListener
 		if (!(component instanceof JLabel))
 			return;
 
+		rightClickPopup.display(component);
 
-		JPopupMenu popupMenu = new JPopupMenu();
-		popupMenu.add(new JMenuItem(new AbstractAction("Remove")
+
+	}
+
+	private class AttachmentPopup extends JPopupMenu
+	{
+		private JLabel component;
+
+		public AttachmentPopup()
 		{
-			@Override
-			public void actionPerformed(ActionEvent e)
+			add(new JMenuItem(new AbstractAction("Remove")
 			{
-				attachments.remove(((JLabel) component).getText());
-				updateAttachments();
-			}
-		}));
+				@Override
+				public void actionPerformed(ActionEvent e)
+				{
+					attachments.remove(component.getText());
+					updateAttachments();
+				}
+			}));
 
-		popupMenu.add(new JMenuItem(new AbstractAction("Remove All")
+			add(new JMenuItem(new AbstractAction("Remove All")
+			{
+				@Override
+				public void actionPerformed(ActionEvent e)
+				{
+					attachments.clear();
+					updateAttachments();
+				}
+			}));
+		}
+
+		public void display(Component component)
 		{
-			@Override
-			public void actionPerformed(ActionEvent e)
-			{
-				attachments.clear();
-				updateAttachments();
-			}
-		}));
-
-		popupMenu.show(this, selected.getX(), selected.getY() + selected.getHeight());
+			this.component = (JLabel) component;
+			show(component, component.getX(), component.getY() + component.getHeight());
+		}
 	}
 
 	private void updateAttachments()
