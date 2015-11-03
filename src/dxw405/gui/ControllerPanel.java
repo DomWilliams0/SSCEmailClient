@@ -26,6 +26,10 @@ public class ControllerPanel extends JPanel
 		setLayout(new BorderLayout());
 		add(splitPane, BorderLayout.CENTER);
 
+		final int minBorder = 200;
+		splitPane.getLeftComponent().setMinimumSize(new Dimension(minBorder, (int) getMinimumSize().getHeight()));
+		splitPane.getRightComponent().setMinimumSize(new Dimension(minBorder, (int) getMinimumSize().getHeight()));
+
 		mailbox.addObserver(emailListView);
 	}
 }

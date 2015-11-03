@@ -20,7 +20,7 @@ public class MailboxDummy extends Mailbox
 	{
 		for (int i = 0; i < 100; i++)
 		{
-			addEmail(new Email("A long email subject!", "sender@gmail.com", "me@gmail.com", "wow this is a long email, telling you all about something", new Date()));
+			addEmail(new Email("A long email subject! No no no much much longer please!", "sender@gmail.com", "me@gmail.com", "wow this is a long email, telling you all about something", new Date()));
 		}
 
 		setChanged();

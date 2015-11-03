@@ -14,6 +14,7 @@ public class EmailListView extends JPanel implements Observer
 {
 	private Mailbox mailbox;
 	private JList<Email> emailList;
+	private JScrollPane scrollPane;
 
 	public EmailListView(Mailbox mailbox)
 	{
@@ -24,8 +25,9 @@ public class EmailListView extends JPanel implements Observer
 		emailList.setCellRenderer(new EmailListRenderer());
 		emailList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
-		JScrollPane scrollPane = new JScrollPane(emailList);
+		scrollPane = new JScrollPane(emailList);
 		scrollPane.getVerticalScrollBar().setUnitIncrement(10);
+		scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 
 		setLayout(new BorderLayout());
 		add(scrollPane, BorderLayout.CENTER);
@@ -73,6 +75,7 @@ public class EmailListView extends JPanel implements Observer
 
 	class EmailListRenderer extends JPanel implements ListCellRenderer<Email>
 	{
+		private static final int MAX_STRING_LENGTH = 40;
 		private final Color defaultBG;
 		private final Color selectedBG;
 
@@ -87,7 +90,7 @@ public class EmailListView extends JPanel implements Observer
 
 			subject = new JLabel();
 			subject.setAlignmentX(LEFT_ALIGNMENT);
-			subject.setFont(subject.getFont().deriveFont(Font.BOLD, 18f));
+			subject.setFont(subject.getFont().deriveFont(Font.BOLD, 15f));
 
 			from = new JLabel();
 
@@ -113,12 +116,22 @@ public class EmailListView extends JPanel implements Observer
 		@Override
 		public Component getListCellRendererComponent(JList<? extends Email> list, Email value, int index, boolean isSelected, boolean cellHasFocus)
 		{
+			// highlighted selection
 			setBackground(isSelected ? selectedBG : defaultBG);
 
-			subject.setText(value.getSubject());
-			date.setText(value.getDate());
-			from.setText(value.getFrom());
+			// wrap and truncate
+			subject.setText(display(value.getSubject()));
+			date.setText(display(value.getDate()));
+			from.setText(display(value.getFrom()));
 			return this;
+		}
+
+		private String display(String s)
+		{
+			if (s.length() > MAX_STRING_LENGTH)
+				s = s.substring(0, MAX_STRING_LENGTH - 3) + "...";
+
+			return "<html><body style='width: " + scrollPane.getWidth() * 0.6 + "px'>" + s + "</body></html>";
 		}
 	}
 }
