@@ -4,6 +4,7 @@ import dxw405.util.Logging;
 
 import javax.mail.*;
 import javax.mail.internet.InternetAddress;
+import javax.swing.*;
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.*;
@@ -80,18 +81,33 @@ public class Mailbox extends Observable implements Closeable
 		}
 	}
 
-	/**
-	 * Gathers all messages from the mailbox
-	 */
 	public void gatherMail()
+	{
+		gatherMail(null);
+	}
+
+	/**
+	 * Gathers all messages from the mailbox, updating the given (optional) progress monitor
+	 *
+	 * @param monitor The optional progress monitor to update
+	 */
+	public void gatherMail(ProgressMonitor monitor)
 	{
 		emails.clear();
 
 		try
 		{
 			Message[] messages = inbox.getMessages();
-			for (Message message : messages)
+
+			if (monitor != null)
 			{
+				monitor.setMaximum(messages.length - 1);
+				monitor.setProgress(0);
+			}
+
+			for (int i = 0, messagesLength = messages.length; i < messagesLength; i++)
+			{
+				Message message = messages[i];
 				String subject = message.getSubject();
 				String from = getSenders(message);
 				String to = getRecipients(message);
@@ -100,6 +116,12 @@ public class Mailbox extends Observable implements Closeable
 
 				Email email = new Email(subject, from, to, content, date);
 				addEmail(email);
+
+				if (monitor != null)
+				{
+					monitor.setProgress(i + 1);
+					monitor.setNote("Gathered " + (i + 1) + "/" + messagesLength);
+				}
 			}
 
 

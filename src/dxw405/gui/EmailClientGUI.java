@@ -2,7 +2,6 @@ package dxw405.gui;
 
 import dxw405.EmailClient;
 import dxw405.Mailbox;
-import dxw405.MailboxDummy;
 import dxw405.util.Logging;
 
 import javax.swing.*;
@@ -26,10 +25,7 @@ public class EmailClientGUI
 		initGUI();
 
 		// get mailbox
-		boolean success = emailClient.connectToMailbox(mailbox);
-		if (!success)
-			close();
-		mailbox.gatherMail();
+		new MailGatherer(mailbox, emailClient).run();
 	}
 
 	private void initGUI()
