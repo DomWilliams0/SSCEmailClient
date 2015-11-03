@@ -234,6 +234,7 @@ public class Mailbox extends Observable implements Closeable
 	{
 		try
 		{
+			email.setAsRead();
 			Message mailboxReference = email.getMailboxReference();
 			if (mailboxReference != null)
 				mailboxReference.setFlag(Flags.Flag.SEEN, true);

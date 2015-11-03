@@ -53,9 +53,8 @@ public class ControllerPanel extends JPanel implements MouseListener
 			emailPreview.view(selected);
 
 			// set as read
-			selected.setAsRead();
-			emailListView.updateElement(list.getSelectedIndex());
 			mailbox.setAsRead(selected);
+			emailListView.updateElement(list.getSelectedIndex());
 
 		}
 
