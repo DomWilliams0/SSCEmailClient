@@ -17,9 +17,13 @@ public class ControllerPanel extends JPanel
 		setLayout(new BorderLayout());
 
 		// centre: emails
-		add(new EmailListView(mailbox), BorderLayout.CENTER);
+		EmailListView emailListView = new EmailListView(mailbox);
+		add(emailListView, BorderLayout.CENTER);
 
 		// right: email view
-		add(new EmailPreview(mailbox), BorderLayout.EAST);
+		EmailPreview emailPreview = new EmailPreview(mailbox);
+		add(emailPreview, BorderLayout.EAST);
+
+		mailbox.addObserver(emailListView);
 	}
 }

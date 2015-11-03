@@ -19,14 +19,16 @@ public class EmailClientGUI
 	public EmailClientGUI(EmailClient emailClient)
 	{
 		this.emailClient = emailClient;
+		this.mailbox = new Mailbox();
 
 		// show gui
 		initGUI();
 
 		// get mailbox
-		mailbox = emailClient.createMailbox();
-		if (mailbox == null)
+		boolean success = emailClient.connectToMailbox(mailbox);
+		if (!success)
 			close();
+		mailbox.gatherMail();
 	}
 
 	private void initGUI()

@@ -48,19 +48,25 @@ public class EmailClient
 		new EmailClientGUI(emailClient);
 	}
 
+	public Config getConfig()
+	{
+		return config;
+	}
+
 	/**
-	 * Creates the mailbox from the config
+	 * Connects to the mailbox specified in the config
 	 *
-	 * @return The mailbox, or null if the operation failed
+	 * @param mailbox The mailbox to connect with
+	 * @return True if the operation succeeded, otherwise false
 	 */
-	public Mailbox createMailbox()
+	public boolean connectToMailbox(Mailbox mailbox)
 	{
 		// load credentials
 		Config creds = new Config(config.get("email-account"));
 		if (creds.isInvalid())
 		{
 			Logging.severe("Could not load account credentials");
-			return null;
+			return false;
 		}
 
 		String host = creds.get("incoming-server");
@@ -69,18 +75,12 @@ public class EmailClient
 		String password = creds.get("password");
 
 		// connect to the mailbox
-		Mailbox mailbox = new Mailbox();
 		if (!mailbox.connect(host, port, user, password))
 		{
 			Logging.severe("Could not connect to the mailbox");
-			return null;
+			return false;
 		}
 
-		return mailbox;
-	}
-
-	public Config getConfig()
-	{
-		return config;
+		return true;
 	}
 }

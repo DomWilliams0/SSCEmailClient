@@ -6,15 +6,19 @@ import javax.mail.*;
 import javax.mail.internet.InternetAddress;
 import java.io.Closeable;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 
-public class Mailbox implements Closeable
+public class Mailbox extends Observable implements Closeable
 {
 	private Store store;
 	private Folder inbox;
+
+	private List<Email> emails;
+
+	public Mailbox()
+	{
+		emails = new ArrayList<>();
+	}
 
 	/**
 	 * Connects to the given mailbox
@@ -77,11 +81,11 @@ public class Mailbox implements Closeable
 	}
 
 	/**
-	 * @return The emails in the inbox. An empty list will be returned if the operation failed
+	 * Gathers all messages from the mailbox
 	 */
-	public List<Email> getEmails()
+	public void gatherMail()
 	{
-		List<Email> emails = new ArrayList<>();
+		emails.clear();
 
 		try
 		{
@@ -104,7 +108,8 @@ public class Mailbox implements Closeable
 			Logging.severe("Could not get messages", e);
 		}
 
-		return emails;
+		setChanged();
+		notifyObservers();
 	}
 
 	private String getSenders(Message message)
@@ -167,5 +172,10 @@ public class Mailbox implements Closeable
 		}
 
 		return sb.toString();
+	}
+
+	public List<Email> getEmails()
+	{
+		return emails;
 	}
 }
