@@ -5,6 +5,7 @@ import dxw405.Mailbox;
 import dxw405.util.Logging;
 
 import javax.swing.*;
+import java.awt.*;
 
 public class MailGatherer
 {
@@ -22,9 +23,9 @@ public class MailGatherer
 		this.emailClient = emailClient;
 	}
 
-	public void run()
+	public void run(Component parent)
 	{
-		ProgressMonitor monitor = new ProgressMonitor(null, null, null, 0, 100);
+		ProgressMonitor monitor = new ProgressMonitor(parent, null, null, 0, 100);
 		monitor.setMillisToPopup(0);
 		monitor.setMillisToDecideToPopup(0);
 

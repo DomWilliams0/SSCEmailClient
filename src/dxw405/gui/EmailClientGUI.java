@@ -24,7 +24,7 @@ public class EmailClientGUI
 		initGUI();
 
 		// get mailbox
-		new MailGatherer(mailbox, emailClient).run();
+		new MailGatherer(mailbox, emailClient).run(frame);
 	}
 
 	private void initGUI()
