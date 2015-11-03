@@ -83,7 +83,7 @@ public class EmailListView extends JPanel implements Observer
 
 		public EmailListRenderer()
 		{
-			setLayout(new BorderLayout());
+			setLayout(new FlowLayout(FlowLayout.LEFT));
 
 			subject = new JLabel();
 			subject.setAlignmentX(LEFT_ALIGNMENT);
@@ -94,9 +94,17 @@ public class EmailListView extends JPanel implements Observer
 			date = new JLabel();
 			date.setAlignmentX(RIGHT_ALIGNMENT);
 
-			add(subject, BorderLayout.NORTH);
-			add(from, BorderLayout.CENTER);
-			add(date, BorderLayout.SOUTH);
+			JPanel container = new JPanel(new GridBagLayout());
+			container.setOpaque(false);
+			GridBagConstraints c = new GridBagConstraints();
+			c.gridx = 0;
+			c.gridy = GridBagConstraints.RELATIVE;
+			c.anchor = GridBagConstraints.WEST;
+
+			container.add(subject, c);
+			container.add(from, c);
+			container.add(date, c);
+			add(container);
 
 			defaultBG = getBackground();
 			selectedBG = new Color(154, 198, 255);
