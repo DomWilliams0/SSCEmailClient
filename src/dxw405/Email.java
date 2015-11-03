@@ -1,5 +1,7 @@
 package dxw405;
 
+import dxw405.util.Utils;
+
 import java.util.Date;
 
 /**
@@ -11,7 +13,9 @@ public class Email
 	private String from;
 	private String to;
 	private String content;
+
 	private Date date;
+	private String dateString;
 
 	public Email(String subject, String from, String to, String content, Date date)
 	{
@@ -20,6 +24,7 @@ public class Email
 		this.to = to;
 		this.content = content;
 		this.date = date;
+		this.dateString = Utils.DATE_FORMATTER.format(date);
 	}
 
 	public String getSubject()
@@ -42,8 +47,13 @@ public class Email
 		return content;
 	}
 
-	public Date getDate()
+	public Date getDateTime()
 	{
 		return date;
+	}
+
+	public String getDate()
+	{
+		return dateString;
 	}
 }

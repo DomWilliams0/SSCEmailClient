@@ -2,7 +2,6 @@ package dxw405.gui;
 
 import dxw405.Email;
 import dxw405.Mailbox;
-import dxw405.util.Utils;
 
 import javax.swing.*;
 import java.awt.*;
@@ -98,7 +97,7 @@ public class EmailListView extends JPanel implements Observer
 			setBackground(isSelected ? selectedBG : defaultBG);
 
 			subject.setText(value.getSubject());
-			date.setText(Utils.DATE_FORMATTER.format(value.getDate())); // todo store string instead of date in Email
+			date.setText(value.getDate());
 			return this;
 		}
 	}
