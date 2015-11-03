@@ -13,16 +13,18 @@ public class ControllerPanel extends JPanel
 	{
 		this.mailbox = mailbox;
 
-		// add components
-		setLayout(new BorderLayout());
+		JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
 
 		// centre: emails
 		EmailListView emailListView = new EmailListView(mailbox);
-		add(emailListView, BorderLayout.CENTER);
+		splitPane.setLeftComponent(emailListView);
 
 		// right: email view
 		EmailPreview emailPreview = new EmailPreview(mailbox);
-		add(emailPreview, BorderLayout.EAST);
+		splitPane.setRightComponent(emailPreview);
+
+		setLayout(new BorderLayout());
+		add(splitPane, BorderLayout.CENTER);
 
 		mailbox.addObserver(emailListView);
 	}
