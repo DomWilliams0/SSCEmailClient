@@ -18,6 +18,20 @@ public class ControllerPanel extends JPanel implements MouseListener
 	{
 		this.mailbox = mailbox;
 
+		// fill panel with tabbedpane
+		JTabbedPane tabbedPane = new JTabbedPane(SwingConstants.TOP, JTabbedPane.SCROLL_TAB_LAYOUT);
+		setLayout(new BorderLayout());
+		add(tabbedPane, BorderLayout.CENTER);
+
+		tabbedPane.addTab("Mailbox", createMailboxTab());
+		tabbedPane.addTab("Compose", createComposeTab());
+
+		// add observer
+		mailbox.addObserver(this.emailListView);
+	}
+
+	private JSplitPane createMailboxTab()
+	{
 		JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
 
 		// centre: emails
@@ -28,18 +42,22 @@ public class ControllerPanel extends JPanel implements MouseListener
 		this.emailPreview = new EmailPreview();
 		splitPane.setRightComponent(this.emailPreview);
 
-		setLayout(new BorderLayout());
-		add(splitPane, BorderLayout.CENTER);
-
-		// limit the split pane
+		// limit divider movement
 		final int minBorder = 200;
 		splitPane.getLeftComponent().setMinimumSize(new Dimension(minBorder, (int) getMinimumSize().getHeight()));
 		splitPane.getRightComponent().setMinimumSize(new Dimension(minBorder, (int) getMinimumSize().getHeight()));
 
-		// add observer
-		mailbox.addObserver(this.emailListView);
+		return splitPane;
 	}
 
+	private JPanel createComposeTab()
+	{
+		JPanel panel = new JPanel();
+
+		panel.add(new JLabel("Composing!"));
+
+		return panel;
+	}
 
 	@Override
 	public void mouseClicked(MouseEvent e)
