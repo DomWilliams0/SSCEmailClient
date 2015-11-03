@@ -8,6 +8,11 @@ import javax.swing.*;
 
 public class MailGatherer
 {
+	static
+	{
+		UIManager.put("ProgressMonitor.progressText", "Working...");
+	}
+
 	private Mailbox mailbox;
 	private EmailClient emailClient;
 
@@ -19,7 +24,7 @@ public class MailGatherer
 
 	public void run()
 	{
-		ProgressMonitor monitor = new ProgressMonitor(null, null, "Connecting to the mailbox", 0, 100);
+		ProgressMonitor monitor = new ProgressMonitor(null, null, null, 0, 100);
 		monitor.setMillisToPopup(0);
 		monitor.setMillisToDecideToPopup(0);
 
