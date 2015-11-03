@@ -3,6 +3,8 @@ package dxw405.gui;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 public class EmailComposePanel extends JPanel
 {
@@ -13,12 +15,15 @@ public class EmailComposePanel extends JPanel
 			new Field("Subject", false, "Re: ")
 	};
 
+	private static final int BORDER_THICKNESS = 5;
+
 	public EmailComposePanel()
 	{
 		setLayout(new BorderLayout());
 
 		add(createHeader(), BorderLayout.NORTH);
 		add(createBody(), BorderLayout.CENTER);
+		add(createControlBar(), BorderLayout.SOUTH);
 	}
 
 	private JPanel createHeader()
@@ -28,7 +33,7 @@ public class EmailComposePanel extends JPanel
 		GridBagConstraints c = new GridBagConstraints();
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.gridx = 0;
-		c.insets.set(5, 5, 5, 5);
+		c.insets.top = c.insets.left = c.insets.bottom = c.insets.right = BORDER_THICKNESS;
 		c.weighty = 1;
 		c.weightx = 2;
 
@@ -57,13 +62,24 @@ public class EmailComposePanel extends JPanel
 	private JPanel createBody()
 	{
 		JPanel bodyPanel = new JPanel(new BorderLayout());
-		final int border = 10;
-		bodyPanel.setBorder(new EmptyBorder(0, border, border, border));
+		bodyPanel.setBorder(new EmptyBorder(0, BORDER_THICKNESS, 0, BORDER_THICKNESS));
 
 		bodyPanel.add(new JScrollPane(new JTextArea("")), BorderLayout.CENTER);
 
 		return bodyPanel;
 	}
+
+	private JPanel createControlBar()
+	{
+		JPanel controlPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+
+		JButton send = new JButton("Send");
+		send.addActionListener(new SendButtonListener());
+		controlPanel.add(send);
+
+		return controlPanel;
+	}
+
 
 	private static class Field
 	{
@@ -80,4 +96,12 @@ public class EmailComposePanel extends JPanel
 	}
 
 
+	private class SendButtonListener implements ActionListener
+	{
+		@Override
+		public void actionPerformed(ActionEvent e)
+		{
+			JOptionPane.showMessageDialog(EmailComposePanel.this, "Send!");
+		}
+	}
 }
