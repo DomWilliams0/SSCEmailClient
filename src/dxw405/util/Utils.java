@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.EnumSet;
 import java.util.Random;
@@ -18,6 +19,9 @@ public class Utils
 
 	public static final String DATE_FORMAT = "dd/MM/yyyy HH:mm";
 	public static final SimpleDateFormat DATE_FORMATTER = new SimpleDateFormat(DATE_FORMAT);
+
+	private static final String[] FILESIZE_UNITS = new String[]{"B", "KB", "MB", "GB", "TB", "PB", "EB"};
+	private static final DecimalFormat FILESIZE_FORMAT = new DecimalFormat("#,##0.#");
 
 
 	private Utils()
@@ -172,6 +176,22 @@ public class Utils
 			if (value.toString().equals(sCompare))
 				return value;
 		return defaultValue;
+	}
+
+	/**
+	 * Gets a file's size in the appropriate units
+	 * Taken from stackoverflow: http://stackoverflow.com/a/5599842
+	 *
+	 * @param file The file
+	 * @return The file's size in a readable format
+	 */
+	public static String readableFileSize(File file)
+	{
+		long size = file.length();
+
+		if (size <= 0) return "0";
+		int digitGroups = (int) (Math.log10(size) / Math.log10(1000));
+		return FILESIZE_FORMAT.format(size / Math.pow(1000, digitGroups)) + " " + FILESIZE_UNITS[digitGroups];
 	}
 
 

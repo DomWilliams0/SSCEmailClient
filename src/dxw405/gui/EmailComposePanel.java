@@ -1,13 +1,17 @@
 package dxw405.gui;
 
+import dxw405.util.Utils;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.io.File;
-import java.util.Collections;
-import java.util.LinkedHashSet;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 public class EmailComposePanel extends JPanel
 {
@@ -119,15 +123,15 @@ public class EmailComposePanel extends JPanel
 
 }
 
-class AttachmentSelection extends JPanel implements ActionListener
+class AttachmentSelection extends JPanel implements ActionListener, MouseListener
 {
-	private LinkedHashSet<File> attachments;
+	private LinkedHashMap<String, File> attachments;
 	private JPanel attachmentPanel;
 	private JButton addButton;
 
 	public AttachmentSelection()
 	{
-		attachments = new LinkedHashSet<>();
+		attachments = new LinkedHashMap<>();
 
 		setLayout(new BorderLayout());
 
@@ -144,14 +148,98 @@ class AttachmentSelection extends JPanel implements ActionListener
 		add(scrollPane, BorderLayout.CENTER);
 	}
 
-	private JPanel createAttachment(File file)
+	@Override
+	public void mouseClicked(MouseEvent e)
+	{
+
+	}
+
+	@Override
+	public void mousePressed(MouseEvent e)
+	{
+		onClick(e);
+	}
+
+	private void onClick(MouseEvent e)
+	{
+		if (!e.isPopupTrigger())
+			return;
+
+		JPanel selected = (JPanel) e.getSource();
+		Component component = selected.getComponent(0);
+		if (!(component instanceof JLabel))
+			return;
+
+
+		JPopupMenu popupMenu = new JPopupMenu();
+		popupMenu.add(new JMenuItem(new AbstractAction("Remove")
+		{
+			@Override
+			public void actionPerformed(ActionEvent e)
+			{
+				attachments.remove(((JLabel) component).getText());
+				updateAttachments();
+			}
+		}));
+
+		popupMenu.add(new JMenuItem(new AbstractAction("Remove All")
+		{
+			@Override
+			public void actionPerformed(ActionEvent e)
+			{
+				attachments.clear();
+				updateAttachments();
+			}
+		}));
+
+		popupMenu.show(this, selected.getX(), selected.getY() + selected.getHeight());
+	}
+
+	private void updateAttachments()
+	{
+		attachmentPanel.removeAll();
+		attachmentPanel.add(addButton);
+
+		for (Map.Entry<String, File> entry : attachments.entrySet())
+			attachmentPanel.add(createAttachment(entry));
+
+		repaint();
+	}
+
+	private JPanel createAttachment(Map.Entry<String, File> entry)
 	{
 		JPanel attachment = new JPanel();
 
-		attachment.add(new JLabel(file.getName()));
+		attachment.add(new JLabel(entry.getKey()));
+
+		// hover for info
+		attachment.setToolTipText("<html>File name: " + entry + "<br/>File size: " + Utils.readableFileSize(entry.getValue()) + "</html>");
+
+		// right click to remove
+		attachment.addMouseListener(this);
+
 
 		return attachment;
 	}
+
+	@Override
+	public void mouseReleased(MouseEvent e)
+	{
+		onClick(e);
+	}
+
+	@Override
+	public void mouseEntered(MouseEvent e)
+	{
+
+	}
+
+	@Override
+	public void mouseExited(MouseEvent e)
+	{
+
+	}
+
 
 	@Override
 	public void actionPerformed(ActionEvent e)
@@ -168,17 +256,10 @@ class AttachmentSelection extends JPanel implements ActionListener
 		if (chosenFiles == null || chosenFiles.length == 0)
 			return;
 
-		Collections.addAll(attachments, chosenFiles);
+		for (File file : chosenFiles)
+			attachments.put(file.getName(), file);
+
 		updateAttachments();
-	}
-
-	private void updateAttachments()
-	{
-		attachmentPanel.removeAll();
-		attachmentPanel.add(addButton);
-
-		for (File attachment : attachments)
-			attachmentPanel.add(createAttachment(attachment));
 	}
 
 
