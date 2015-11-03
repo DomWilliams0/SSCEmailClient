@@ -2,6 +2,7 @@ package dxw405;
 
 import dxw405.util.Utils;
 
+import javax.mail.Message;
 import java.util.Date;
 
 /**
@@ -18,14 +19,16 @@ public class Email
 	private String dateString;
 
 	private boolean read;
+	private Message mailboxReference;
 
-	public Email(String subject, String from, String to, String content, Date date, boolean read)
+	public Email(String subject, String from, String to, String content, Date date, boolean read, Message mailboxReference)
 	{
 		this.subject = subject;
 		this.from = from;
 		this.to = to;
 		this.content = content;
 		this.date = date;
+		this.mailboxReference = mailboxReference;
 		this.dateString = Utils.DATE_FORMATTER.format(date);
 		this.read = read;
 	}
@@ -68,5 +71,10 @@ public class Email
 	public void setAsRead()
 	{
 		read = true;
+	}
+
+	public Message getMailboxReference()
+	{
+		return mailboxReference;
 	}
 }
