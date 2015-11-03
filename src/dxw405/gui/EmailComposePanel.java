@@ -12,6 +12,7 @@ import java.awt.event.MouseEvent;
 import java.io.File;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 public class EmailComposePanel extends JPanel
 {
@@ -125,12 +126,17 @@ public class EmailComposePanel extends JPanel
 
 class AttachmentSelection extends JPanelMouseAdapter implements ActionListener
 {
+	private Map<String, JPanel> itemCache;
+	private Map<String, JPanel> itemCacheBuffer;
+
 	private LinkedHashMap<String, File> attachments;
 	private JPanel attachmentPanel;
 	private JButton addButton;
 
 	public AttachmentSelection()
 	{
+		itemCache = new TreeMap<>();
+		itemCacheBuffer = new TreeMap<>();
 		attachments = new LinkedHashMap<>();
 
 		setLayout(new BorderLayout());
@@ -200,8 +206,24 @@ class AttachmentSelection extends JPanelMouseAdapter implements ActionListener
 		attachmentPanel.removeAll();
 		attachmentPanel.add(addButton);
 
+		itemCacheBuffer.clear();
+
 		for (Map.Entry<String, File> entry : attachments.entrySet())
-			attachmentPanel.add(createAttachment(entry));
+		{
+			String key = entry.getValue().getAbsolutePath();
+			JPanel attachment = itemCache.get(key);
+			if (attachment == null)
+			{
+				attachment = createAttachment(entry);
+				itemCache.put(key, attachment);
+			}
+
+			attachmentPanel.add(attachment);
+			itemCacheBuffer.put(key, attachment);
+		}
+
+		itemCache.clear();
+		itemCache.putAll(itemCacheBuffer);
 
 		repaint();
 	}
@@ -217,7 +239,6 @@ class AttachmentSelection extends JPanelMouseAdapter implements ActionListener
 
 		// right click to remove
 		attachment.addMouseListener(this);
-
 
 		return attachment;
 	}
