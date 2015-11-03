@@ -1,5 +1,6 @@
 package dxw405;
 
+import javax.swing.*;
 import java.util.Date;
 
 public class MailboxDummy extends Mailbox
@@ -25,5 +26,12 @@ public class MailboxDummy extends Mailbox
 
 		setChanged();
 		notifyObservers();
+	}
+
+	@Override
+	public void gatherMail(ProgressMonitor monitor)
+	{
+		gatherMail();
+		monitor.setProgress(100);
 	}
 }
