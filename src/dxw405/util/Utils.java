@@ -16,7 +16,7 @@ public class Utils
 {
 	public static final Random RANDOM = new Random();
 
-	public static final String DATE_FORMAT = "dd/MM/yyyy";
+	public static final String DATE_FORMAT = "dd/MM/yyyy HH:mm";
 	public static final SimpleDateFormat DATE_FORMATTER = new SimpleDateFormat(DATE_FORMAT);
 
 

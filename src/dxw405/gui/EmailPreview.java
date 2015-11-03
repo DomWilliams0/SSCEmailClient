@@ -9,6 +9,7 @@ public class EmailPreview extends JPanel
 {
 	private JLabel from;
 	private JLabel to;
+	private JLabel sent;
 	private JLabel subject;
 	private JTextPane content;
 
@@ -22,6 +23,7 @@ public class EmailPreview extends JPanel
 
 		from = new JLabel();
 		to = new JLabel();
+		sent = new JLabel();
 		subject = new JLabel();
 		subject.setFont(subject.getFont().deriveFont(Font.BOLD, 16f));
 
@@ -33,6 +35,7 @@ public class EmailPreview extends JPanel
 		c.insets.top = c.insets.bottom = 2;
 		header.add(from, c);
 		header.add(to, c);
+		header.add(sent, c);
 		header.add(subject, c);
 		headerContainer.add(header);
 
@@ -52,6 +55,7 @@ public class EmailPreview extends JPanel
 
 		from.setText("<html><b>From: </b>" + selected.getFrom() + "</html>");
 		to.setText("<html><b>To: </b>" + selected.getTo() + "</html>");
+		sent.setText("<html><b>Sent: </b>" + selected.getDate() + "</html>");
 		subject.setText(selected.getSubject());
 		content.setText(selected.getContent());
 		content.setCaretPosition(0);
