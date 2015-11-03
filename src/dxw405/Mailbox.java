@@ -22,6 +22,43 @@ public class Mailbox extends Observable implements Closeable
 		emails = new ArrayList<>();
 	}
 
+	public static String parseContent(Message message)
+	{
+		try
+		{
+			IMAPMessage imapMessage = (IMAPMessage) message;
+			imapMessage.setPeek(true);
+			Logging.fine("Fetching message content (" + message.getSubject() + ")");
+
+			if (message.isMimeType("text/*"))
+				return (String) message.getContent();
+
+			StringBuilder sb = new StringBuilder();
+			Multipart multipart = (Multipart) message.getContent();
+			for (int x = 0; x < multipart.getCount(); x++)
+			{
+				BodyPart bodyPart = multipart.getBodyPart(x);
+				if (bodyPart.isMimeType("text/*"))
+					sb.append(bodyPart.getContent());
+				else
+				{
+					String description = bodyPart.getDescription();
+					if (description == null)
+						description = bodyPart.getContentType();
+					Logging.fine("Ignored message part: " + description);
+				}
+			}
+
+			return sb.toString();
+
+		} catch (MessagingException | IOException e)
+		{
+			Logging.warning("Could not get message content", e);
+			return "";
+		}
+
+	}
+
 	/**
 	 * Connects to the given mailbox
 	 *
@@ -114,12 +151,11 @@ public class Mailbox extends Observable implements Closeable
 				String subject = message.getSubject();
 				String from = getSenders(message);
 				String to = getRecipients(message);
-				String content = getContent(message);
 				Date date = message.getReceivedDate();
 				boolean read = flags.contains(Flags.Flag.SEEN);
 				boolean recent = flags.contains(Flags.Flag.RECENT);
 
-				Email email = new Email(subject, from, to, content, date, read, recent, message);
+				Email email = new Email(subject, from, to, date, read, recent, message);
 				addEmail(email);
 
 				if (monitor != null)
@@ -171,42 +207,6 @@ public class Mailbox extends Observable implements Closeable
 			Logging.warning("Could not parse recipients", e);
 			return "";
 		}
-	}
-
-	private String getContent(Message message)
-	{
-		try
-		{
-			IMAPMessage imapMessage = (IMAPMessage) message;
-			imapMessage.setPeek(true);
-
-			if (message.isMimeType("text/*"))
-				return (String) message.getContent();
-
-			StringBuilder sb = new StringBuilder();
-			Multipart multipart = (Multipart) message.getContent();
-			for (int x = 0; x < multipart.getCount(); x++)
-			{
-				BodyPart bodyPart = multipart.getBodyPart(x);
-				if (bodyPart.isMimeType("text/*"))
-					sb.append(bodyPart.getContent());
-				else
-				{
-					String description = bodyPart.getDescription();
-					if (description==null)
-						description = bodyPart.getContentType();
-					Logging.fine("Ignored message part: " + description);
-				}
-			}
-
-			return sb.toString();
-
-		} catch (MessagingException | IOException e)
-		{
-			Logging.warning("Could not get message content", e);
-			return "";
-		}
-
 	}
 
 	protected void addEmail(Email email) {emails.add(email);}
