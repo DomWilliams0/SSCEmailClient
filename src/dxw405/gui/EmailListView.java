@@ -22,8 +22,13 @@ public class EmailListView extends JPanel implements Observer
 		emailList = new JList<>();
 		emailList.setModel(new EmailListModel());
 		emailList.setCellRenderer(new EmailListRenderer());
+		emailList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
-		add(emailList);
+		JScrollPane scrollPane = new JScrollPane(emailList);
+		scrollPane.getVerticalScrollBar().setUnitIncrement(10);
+
+		setLayout(new BorderLayout());
+		add(scrollPane, BorderLayout.CENTER);
 	}
 
 	@Override
@@ -73,6 +78,7 @@ public class EmailListView extends JPanel implements Observer
 
 		private JLabel subject;
 		private JLabel date;
+		private JLabel from;
 
 
 		public EmailListRenderer()
@@ -80,11 +86,16 @@ public class EmailListView extends JPanel implements Observer
 			setLayout(new BorderLayout());
 
 			subject = new JLabel();
+			subject.setAlignmentX(LEFT_ALIGNMENT);
 			subject.setFont(subject.getFont().deriveFont(Font.BOLD, 18f));
 
+			from = new JLabel();
+
 			date = new JLabel();
+			date.setAlignmentX(RIGHT_ALIGNMENT);
 
 			add(subject, BorderLayout.NORTH);
+			add(from, BorderLayout.CENTER);
 			add(date, BorderLayout.SOUTH);
 
 			defaultBG = getBackground();
@@ -98,6 +109,7 @@ public class EmailListView extends JPanel implements Observer
 
 			subject.setText(value.getSubject());
 			date.setText(value.getDate());
+			from.setText(value.getFrom());
 			return this;
 		}
 	}
