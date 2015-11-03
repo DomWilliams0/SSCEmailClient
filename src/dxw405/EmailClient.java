@@ -83,4 +83,18 @@ public class EmailClient
 
 		return true;
 	}
+
+	/**
+	 * Create an uninitiated mailbox depending on 'use-dummy' in config.
+	 * If this is true, the mailbox is a dummy that doesn't connect to any server
+	 *
+	 * @return A new uninitiated mailbox
+	 */
+	public Mailbox createBlankMailbox()
+	{
+		if (config.getBoolean("use-dummy"))
+			return new MailboxDummy();
+
+		return new Mailbox();
+	}
 }

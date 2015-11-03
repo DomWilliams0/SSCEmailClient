@@ -20,7 +20,7 @@ public class EmailClientGUI
 	public EmailClientGUI(EmailClient emailClient)
 	{
 		this.emailClient = emailClient;
-		this.mailbox = new MailboxDummy();
+		this.mailbox = emailClient.createBlankMailbox();
 
 		// show gui
 		initGUI();
