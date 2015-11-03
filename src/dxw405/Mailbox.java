@@ -102,7 +102,7 @@ public class Mailbox extends Observable implements Closeable
 
 			if (monitor != null)
 			{
-				monitor.setMaximum(messages.length - 1);
+				monitor.setMaximum(messages.length);
 				monitor.setProgress(0);
 			}
 
@@ -123,10 +123,9 @@ public class Mailbox extends Observable implements Closeable
 				if (monitor != null)
 				{
 					monitor.setProgress(i + 1);
-					monitor.setNote("Gathered " + (i + 1) + "/" + messagesLength);
+					monitor.setNote("Gathered " + (i + 1) + "/" + messages.length);
 				}
 			}
-
 
 		} catch (MessagingException e)
 		{
