@@ -93,7 +93,7 @@ public class ControllerPanel extends JPanelMouseAdapter implements ActionListene
 				JOptionPane.showMessageDialog(this, "Message sent!", "Success", JOptionPane.INFORMATION_MESSAGE);
 			} catch (MessagingException e)
 			{
-				JOptionPane.showMessageDialog(this, "The message could not be sent: " + e.getMessage(), "Failure", JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(this, "The message could not be sent:\n" + e.getMessage(), "Failure", JOptionPane.ERROR_MESSAGE);
 			}
 
 		}

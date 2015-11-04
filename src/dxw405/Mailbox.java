@@ -5,6 +5,7 @@ import dxw405.util.Logging;
 
 import javax.mail.*;
 import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
 import javax.swing.*;
 import java.io.Closeable;
 import java.io.IOException;
@@ -14,8 +15,10 @@ public class Mailbox extends Observable implements Closeable
 {
 	private Store store;
 	private Folder inbox;
+	private Session session;
 
 	private List<Email> emails;
+	private String emailAddress;
 
 	public Mailbox()
 	{
@@ -76,7 +79,9 @@ public class Mailbox extends Observable implements Closeable
 		imapProperties.setProperty("mail.user", user);
 		imapProperties.setProperty("mail.password", password);
 
-		Session session = Session.getDefaultInstance(imapProperties);
+		emailAddress = user;
+
+		session = Session.getDefaultInstance(imapProperties);
 		try
 		{
 			// connect
@@ -256,6 +261,28 @@ public class Mailbox extends Observable implements Closeable
 
 	public void sendEmail(PreparedEmail email) throws MessagingException
 	{
-		// todo
+		if (emailAddress == null)
+			throw new MessagingException("Invalid from address");
+
+		MimeMessage message = new MimeMessage(session);
+		message.setFrom(emailAddress);
+		message.setSubject(email.getSubject());
+		message.setText(email.getBody());
+
+		for (Field field : Field.values())
+		{
+			if (!field.isAddress())
+				continue;
+
+			List<Address> addressList = email.getRecipients(field.getRecipientType());
+			Address[] addresses = new Address[addressList.size()];
+			for (int i = 0, addressListSize = addressList.size(); i < addressListSize; i++)
+				addresses[i] = addressList.get(i);
+
+			message.setRecipients(field.getRecipientType(), addresses);
+		}
+
+
+		Transport.send(message);
 	}
 }
