@@ -187,8 +187,18 @@ public class Utils
 	 */
 	public static String readableFileSize(File file)
 	{
-		long size = file.length();
+		return readableFileSize(file.length());
+	}
 
+	/**
+	 * Gets a file's size in the appropriate units
+	 * Taken from stackoverflow: http://stackoverflow.com/a/5599842
+	 *
+	 * @param size The file size to convert
+	 * @return The given size in a readable format
+	 */
+	public static String readableFileSize(long size)
+	{
 		if (size <= 0) return "0";
 		int digitGroups = (int) (Math.log10(size) / Math.log10(1000));
 		return FILESIZE_FORMAT.format(size / Math.pow(1000, digitGroups)) + " " + FILESIZE_UNITS[digitGroups];
