@@ -146,10 +146,6 @@ public class EmailComposePanel extends JPanel
 
 		return textComponent.getText();
 	}
-
-
-
-
 }
 
 class AttachmentSelection extends JPanelMouseAdapter implements ActionListener
