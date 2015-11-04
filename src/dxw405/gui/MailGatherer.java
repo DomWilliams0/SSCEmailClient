@@ -45,15 +45,18 @@ public class MailGatherer
 		@Override
 		protected Boolean doInBackground()
 		{
-			monitor.setNote("Connecting to the mailbox...");
-			monitor.setProgress(0);
-
-			// connect
-			boolean success = emailClient.connectToMailbox(mailbox);
-			if (!success)
+			if (!mailbox.isConnected())
 			{
-				monitor.setNote("Could not connect!");
-				return Boolean.FALSE;
+				monitor.setNote("Connecting to the mailbox...");
+				monitor.setProgress(0);
+
+				// connect
+				boolean success = emailClient.connectToMailbox(mailbox);
+				if (!success)
+				{
+					monitor.setNote("Could not connect!");
+					return Boolean.FALSE;
+				}
 			}
 
 			monitor.setNote("Gathering mail...");

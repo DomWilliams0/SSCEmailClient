@@ -16,12 +16,14 @@ public class Mailbox extends Observable implements Closeable
 	private Store store;
 	private Folder inbox;
 	private Session session;
+	private boolean connected;
 
 	private List<Email> emails;
 	private String emailAddress;
 
 	public Mailbox()
 	{
+		connected = false;
 		emails = new ArrayList<>();
 	}
 
@@ -98,6 +100,7 @@ public class Mailbox extends Observable implements Closeable
 			Logging.info("Attempting to connect to " + host + ":" + port + " with email'" + user + "'");
 			store = session.getStore("imaps");
 			store.connect(host, port, user, password);
+			connected = true;
 			Logging.info("Successfully connected to mailbox");
 
 			// test: list all emails in inbox
@@ -133,6 +136,8 @@ public class Mailbox extends Observable implements Closeable
 			Logging.severe("Could not close folder/store", me);
 		}
 	}
+
+	public boolean isConnected() {return connected;}
 
 	public void gatherMail()
 	{
