@@ -127,7 +127,7 @@ public class AttachmentSelection extends JPanelMouseAdapter implements ActionLis
 
 		// hover for info
 		StringBuilder toolTip = new StringBuilder();
-		toolTip.append("<html>File name: ").append(entry);
+		toolTip.append("<html>File name: ").append(entry.getKey());
 
 		File file = entry.getValue();
 		if (file != null)
