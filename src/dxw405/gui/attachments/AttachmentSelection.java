@@ -25,6 +25,7 @@ public class AttachmentSelection extends JPanelMouseAdapter implements ActionLis
 	private LinkedHashMap<String, File> attachments;
 	private JPanel attachmentPanel;
 	private JButton addButton;
+	private JFileChooser fileChooser;
 
 	private AttachmentPopup rightClickPopup;
 	private boolean editable;
@@ -32,6 +33,10 @@ public class AttachmentSelection extends JPanelMouseAdapter implements ActionLis
 	public AttachmentSelection(boolean editable)
 	{
 		this.editable = editable;
+
+		fileChooser = new JFileChooser();
+		fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+		fileChooser.setMultiSelectionEnabled(true);
 
 		itemCache = new TreeMap<>();
 		itemCacheBuffer = new TreeMap<>();
@@ -164,15 +169,11 @@ public class AttachmentSelection extends JPanelMouseAdapter implements ActionLis
 	@Override
 	public void actionPerformed(ActionEvent e)
 	{
-		JFileChooser chooser = new JFileChooser();
-		chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-		chooser.setMultiSelectionEnabled(true);
-
-		int result = chooser.showOpenDialog(this);
+		int result = fileChooser.showOpenDialog(this);
 		if (result != JFileChooser.APPROVE_OPTION)
 			return;
 
-		File[] chosenFiles = chooser.getSelectedFiles();
+		File[] chosenFiles = fileChooser.getSelectedFiles();
 		if (chosenFiles == null || chosenFiles.length == 0)
 			return;
 
