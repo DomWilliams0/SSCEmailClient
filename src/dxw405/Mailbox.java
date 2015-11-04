@@ -158,7 +158,7 @@ public class Mailbox extends Observable implements Closeable
 		try
 		{
 			final int lastEmail = inbox.getMessageCount();
-			int firstEmail = maxEmails <= 0 ? 1 : lastEmail - maxEmails;
+			int firstEmail = maxEmails <= 0 ? 1 : lastEmail - maxEmails + 1;
 
 			Message[] messages = inbox.getMessages(firstEmail, lastEmail);
 
