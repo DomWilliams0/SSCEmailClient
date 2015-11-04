@@ -116,6 +116,7 @@ public class AttachmentSelection extends JPanelMouseAdapter implements ActionLis
 		itemCache.putAll(itemCacheBuffer);
 
 		revalidate();
+		repaint();
 	}
 
 	private JPanel createAttachment(Map.Entry<String, File> entry)
