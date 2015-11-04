@@ -104,7 +104,7 @@ public class Email
 				"subject='" + subject + '\'' +
 				", from='" + from + '\'' +
 				", to='" + to + '\'' +
-				", content=" + content.getContent() +
+				", content=" + content.getLoadedContent() +
 				", date=" + date +
 				", read=" + read +
 				", recent=" + recent +
@@ -175,6 +175,11 @@ public class Email
 				Logging.severe("Could not get attachment stream for '" + name + "'", e);
 				return null;
 			}
+		}
+
+		public String getLoadedContent()
+		{
+			return loaded ? content : "";
 		}
 	}
 }
