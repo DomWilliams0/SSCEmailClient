@@ -164,6 +164,9 @@ public class EmailListView extends JPanel implements Observer
 
 		private String display(String s, boolean bold)
 		{
+			if (s == null)
+				s = "";
+
 			if (s.length() > MAX_STRING_LENGTH)
 				s = s.substring(0, MAX_STRING_LENGTH - 3) + "...";
 
