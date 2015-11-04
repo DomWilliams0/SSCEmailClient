@@ -63,6 +63,33 @@ public class AttachmentSelection extends JPanelMouseAdapter implements ActionLis
 		add(scrollPane, BorderLayout.CENTER);
 	}
 
+	public List<File> getAttachments()
+	{
+		List<File> files = new ArrayList<>();
+		files.addAll(attachments.values());
+		return files;
+	}
+
+	public Email getEmail()
+	{
+		return email;
+	}
+
+	public void setEmail(Email email)
+	{
+		attachments.clear();
+		this.email = email;
+
+		if (email != null)
+		{
+			List<String> names = email.getContent().getAttachmentNames();
+			for (String name : names)
+				attachments.put(name, null);
+		}
+
+		refresh();
+	}
+
 	public void refresh()
 	{
 		attachmentPanel.removeAll();
@@ -112,33 +139,6 @@ public class AttachmentSelection extends JPanelMouseAdapter implements ActionLis
 		attachment.addMouseListener(this);
 
 		return attachment;
-	}
-
-	public List<File> getAttachments()
-	{
-		List<File> files = new ArrayList<>();
-		files.addAll(attachments.values());
-		return files;
-	}
-
-	public Email getEmail()
-	{
-		return email;
-	}
-
-	public void setEmail(Email email)
-	{
-		attachments.clear();
-		this.email = email;
-
-		if (email != null)
-		{
-			List<String> names = email.getContent().getAttachmentNames();
-			for (String name : names)
-				attachments.put(name, null);
-		}
-
-		refresh();
 	}
 
 	@Override

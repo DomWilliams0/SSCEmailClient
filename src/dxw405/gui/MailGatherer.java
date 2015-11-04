@@ -5,7 +5,8 @@ import dxw405.Mailbox;
 import dxw405.util.Logging;
 
 import javax.swing.*;
-import java.awt.*;
+import java.awt.Component;
+import java.awt.Container;
 
 public class MailGatherer
 {
@@ -83,6 +84,11 @@ public class MailGatherer
 			return Boolean.TRUE;
 		}
 
+		private void setIndeterminate(boolean indeterminate)
+		{
+			progressBar.setIndeterminate(indeterminate);
+		}
+
 		private void findDialogComponents()
 		{
 			if (progressBar == null)
@@ -126,12 +132,6 @@ public class MailGatherer
 			}
 
 			return false;
-		}
-
-
-		private void setIndeterminate(boolean indeterminate)
-		{
-			progressBar.setIndeterminate(indeterminate);
 		}
 
 

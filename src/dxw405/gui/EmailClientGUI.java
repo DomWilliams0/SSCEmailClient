@@ -5,7 +5,7 @@ import dxw405.Mailbox;
 import dxw405.util.Logging;
 
 import javax.swing.*;
-import java.awt.*;
+import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
