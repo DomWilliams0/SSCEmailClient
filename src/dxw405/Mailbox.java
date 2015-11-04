@@ -20,9 +20,11 @@ public class Mailbox extends Observable implements Closeable
 
 	private List<Email> emails;
 	private String emailAddress;
+	private int maxEmails;
 
-	public Mailbox()
+	public Mailbox(int maxEmails)
 	{
+		this.maxEmails = maxEmails;
 		connected = false;
 		emails = new ArrayList<>();
 	}
@@ -155,7 +157,10 @@ public class Mailbox extends Observable implements Closeable
 
 		try
 		{
-			Message[] messages = inbox.getMessages();
+			final int lastEmail = inbox.getMessageCount();
+			int firstEmail = maxEmails <= 0 ? 1 : lastEmail - maxEmails;
+
+			Message[] messages = inbox.getMessages(firstEmail, lastEmail);
 
 			if (monitor != null)
 			{

@@ -97,9 +97,11 @@ public class EmailClient
 	 */
 	public Mailbox createBlankMailbox()
 	{
+		int maxEmails = config.getInt("max-emails");
+
 		//		 if (config.getBoolean("use-dummy"))
 		//		 		return new MailboxDummy();
 
-		return new Mailbox();
+		return new Mailbox(maxEmails);
 	}
 }
