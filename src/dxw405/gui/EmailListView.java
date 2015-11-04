@@ -16,10 +16,12 @@ public class EmailListView extends JPanel implements Observer
 	private Mailbox mailbox;
 	private JList<Email> emailList;
 	private JScrollPane scrollPane;
+	private String lastSearch;
 
 	public EmailListView(MouseListener mouseListener, Mailbox mailbox)
 	{
 		this.mailbox = mailbox;
+		this.lastSearch = null;
 
 		emailList = new JList<>();
 		emailList.setModel(new EmailListModel());
@@ -71,7 +73,12 @@ public class EmailListView extends JPanel implements Observer
 			@Override
 			public void actionPerformed(ActionEvent e)
 			{
-				mailbox.search(textField.getText());
+				String searchTerm = textField.getText();
+				if (!searchTerm.equalsIgnoreCase(lastSearch))
+				{
+					mailbox.search(searchTerm);
+					lastSearch = searchTerm;
+				}
 			}
 		});
 
