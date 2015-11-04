@@ -16,7 +16,7 @@ public enum Field
 
 	Field(String name, boolean address, boolean inHeader, boolean mandatory, Message.RecipientType recipientType)
 	{
-		this(name, null, address, inHeader, mandatory, recipientType);
+		this(name, "", address, inHeader, mandatory, recipientType);
 	}
 
 	Field(String name, String defaultValue, boolean address, boolean inHeader, boolean mandatory, Message.RecipientType recipientType)
