@@ -32,7 +32,8 @@ public class Mailbox extends Observable implements Closeable
 		emails = new ArrayList<>();
 	}
 
-	public static String parseContent(Message message)
+
+	public static boolean readContent(Message message, EmailContent emailContent)
 	{
 		try
 		{
@@ -40,31 +41,51 @@ public class Mailbox extends Observable implements Closeable
 			imapMessage.setPeek(true);
 			Logging.fine("Fetching message content (" + message.getSubject() + ")");
 
+			// simple text
 			if (message.isMimeType("text/*"))
-				return (String) message.getContent();
+			{
+				emailContent.setContent((String) message.getContent());
+				return true;
+			}
 
 			StringBuilder sb = new StringBuilder();
 			Multipart multipart = (Multipart) message.getContent();
-			for (int x = 0; x < multipart.getCount(); x++)
+			for (int i = 0; i < multipart.getCount(); i++)
 			{
-				BodyPart bodyPart = multipart.getBodyPart(x);
-				if (bodyPart.isMimeType("text/*"))
-					sb.append(bodyPart.getContent());
-				else
+				BodyPart bodyPart = multipart.getBodyPart(i);
+
+				try
 				{
-					String description = bodyPart.getDescription();
-					if (description == null)
-						description = bodyPart.getContentType();
-					Logging.fine("Ignored message part: " + description);
+					String name = bodyPart.getFileName();
+
+					if (name == null)
+					{
+						// text content
+						if (bodyPart.isMimeType("text/*"))
+							sb.append(bodyPart.getContent());
+
+						continue;
+					}
+
+					// attachment
+					emailContent.addAttachment(name, i);
+					Logging.fine("Found attachment '" + name + "'");
+
+
+				} catch (MessagingException e)
+				{
+					Logging.warning("Ignored body part: " + bodyPart.getDescription(), e);
 				}
+
 			}
 
-			return sb.toString();
+			emailContent.setContent(sb.toString());
+			return true;
 
 		} catch (MessagingException | IOException e)
 		{
 			Logging.warning("Could not get message content", e);
-			return "";
+			return false;
 		}
 
 	}
