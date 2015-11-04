@@ -1,10 +1,13 @@
 package dxw405.gui;
 
+import dxw405.Field;
+import dxw405.PreparedEmail;
 import dxw405.util.JPanelMouseAdapter;
 import dxw405.util.Utils;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import javax.swing.text.JTextComponent;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -16,22 +19,20 @@ import java.util.TreeMap;
 
 public class EmailComposePanel extends JPanel
 {
-	private static final Field[] FIELDS = {
-			new Field("To", true, ""),
-			new Field("Cc", true, ""),
-			new Field("Bcc", true, ""),
-			new Field("Subject", false, "Re: ")
-	};
+	public static final String SEND_COMMAND = "SEND";
 
 	private static final int BORDER_THICKNESS = 5;
+	private TreeMap<String, JTextComponent> inputs;
 
-	public EmailComposePanel()
+	public EmailComposePanel(ActionListener sendButtonListener)
 	{
+		inputs = new TreeMap<>();
+
 		setLayout(new BorderLayout());
 
 		add(createHeader(), BorderLayout.NORTH);
 		add(createBody(), BorderLayout.CENTER);
-		add(createControlBar(), BorderLayout.SOUTH);
+		add(createControlBar(sendButtonListener), BorderLayout.SOUTH);
 	}
 
 	private JPanel createHeader()
@@ -49,17 +50,21 @@ public class EmailComposePanel extends JPanel
 		JPanel bodyPanel = new JPanel(new BorderLayout());
 		bodyPanel.setBorder(new EmptyBorder(0, BORDER_THICKNESS, 0, BORDER_THICKNESS));
 
-		bodyPanel.add(new JScrollPane(new JTextArea("")), BorderLayout.CENTER);
+		JTextArea textArea = new JTextArea("");
+		inputs.put(Field.BODY.getName(), textArea);
+
+		bodyPanel.add(new JScrollPane(textArea), BorderLayout.CENTER);
 
 		return bodyPanel;
 	}
 
-	private JPanel createControlBar()
+	private JPanel createControlBar(ActionListener sendButtonListener)
 	{
 		JPanel controlPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 
 		JButton send = new JButton("Send");
-		send.addActionListener(new SendButtonListener());
+		send.setActionCommand(SEND_COMMAND);
+		send.addActionListener(sendButtonListener);
 		controlPanel.add(send);
 
 		return controlPanel;
@@ -78,11 +83,14 @@ public class EmailComposePanel extends JPanel
 
 		// labels
 		JPanel labelPanel = new JPanel(new GridBagLayout());
-		for (Field field : FIELDS)
+		for (Field field : Field.values())
 		{
-			JLabel label = new JLabel(field.name, SwingConstants.RIGHT);
+			if (!field.isInHeader())
+				continue;
 
-			if (field.isAddress)
+			JLabel label = new JLabel(field.getName(), SwingConstants.RIGHT);
+
+			if (field.isAddress())
 				label.setToolTipText("Separate addresses with a semi-colon (;)");
 			labelPanel.add(label, c);
 		}
@@ -90,37 +98,57 @@ public class EmailComposePanel extends JPanel
 		// fields
 		JPanel fieldPanel = new JPanel(new GridBagLayout());
 
-		for (Field FIELD : FIELDS)
-			fieldPanel.add(new JTextField(FIELD.defaultValue), c);
+		for (Field field : Field.values())
+		{
+			if (!field.isInHeader())
+				continue;
+
+			JTextField textField = new JTextField(field.getDefaultValue());
+			inputs.put(field.getName(), textField);
+
+			fieldPanel.add(textField, c);
+		}
 
 		container.add(labelPanel, BorderLayout.WEST);
 		container.add(fieldPanel, BorderLayout.CENTER);
 		return container;
 	}
 
-	private static class Field
+	public PreparedEmail prepareEmail()
 	{
-		public String name;
-		public boolean isAddress;
-		public String defaultValue;
+		PreparedEmail preparedEmail = new PreparedEmail();
 
-		public Field(String name, boolean isAddress, String defaultValue)
+		// populate fields
+		for (Field field : Field.values())
+			if (field.isAddress())
+				preparedEmail.setRecipients(field, getField(field));
+
+		preparedEmail.setSubject(getField(Field.SUBJECT));
+		preparedEmail.setBody(getField(Field.BODY));
+
+		// show error dialog if necessary
+		if (preparedEmail.hasErrors())
 		{
-			this.name = name;
-			this.isAddress = isAddress;
-			this.defaultValue = defaultValue;
+			String delimiter = "\n -";
+			String errorMessage = "Please fix the following issue(s):" + delimiter + String.join(delimiter, preparedEmail.getErrors());
+			JOptionPane.showMessageDialog(EmailComposePanel.this, errorMessage, "Uh oh", JOptionPane.ERROR_MESSAGE);
+			return null;
 		}
+
+		return preparedEmail;
+	}
+
+	private String getField(Field field)
+	{
+		JTextComponent textComponent = inputs.get(field.getName());
+		if (textComponent == null)
+			return null;
+
+		return textComponent.getText();
 	}
 
 
-	private class SendButtonListener implements ActionListener
-	{
-		@Override
-		public void actionPerformed(ActionEvent e)
-		{
-			JOptionPane.showMessageDialog(EmailComposePanel.this, "Send!");
-		}
-	}
+
 
 }
 

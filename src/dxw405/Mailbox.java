@@ -253,4 +253,9 @@ public class Mailbox extends Observable implements Closeable
 		}
 
 	}
+
+	public void sendEmail(PreparedEmail email) throws MessagingException
+	{
+		// todo
+	}
 }
