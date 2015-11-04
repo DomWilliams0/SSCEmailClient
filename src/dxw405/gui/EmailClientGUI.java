@@ -5,6 +5,8 @@ import dxw405.Mailbox;
 import dxw405.util.Logging;
 
 import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
@@ -12,6 +14,7 @@ public class EmailClientGUI
 {
 	private Mailbox mailbox;
 	private EmailClient emailClient;
+	private MailGatherer mailGatherer;
 
 	private JFrame frame;
 
@@ -24,7 +27,8 @@ public class EmailClientGUI
 		initGUI();
 
 		// get mailbox
-		new MailGatherer(mailbox, emailClient).run(frame);
+		mailGatherer = new MailGatherer(mailbox, emailClient);
+		checkForMail();
 	}
 
 	private void initGUI()
@@ -33,12 +37,14 @@ public class EmailClientGUI
 		frame = createFrame("Email Client");
 
 		// populate
-		//		frame.setJMenuBar(createMenuBar());
+		frame.setJMenuBar(createMenuBar());
 		frame.add(new ControllerPanel(mailbox));
 
 		// show
 		show();
 	}
+
+	private void checkForMail() {mailGatherer.run(frame);}
 
 	/**
 	 * Creates the window of the size specified in the config and the given title
@@ -77,69 +83,59 @@ public class EmailClientGUI
 		return frame;
 	}
 
+	/**
+	 * @return The menu bar, with various buttons such as exit, or compose mail
+	 */
+	private JMenuBar createMenuBar()
+	{
+		JMenuBar bar = new JMenuBar();
+		bar.setLayout(new FlowLayout(FlowLayout.RIGHT));
+
+		// check
+		addMenuItem(bar, "Check for mail", 'c', new AbstractAction()
+		{
+			@Override
+			public void actionPerformed(ActionEvent e)
+			{
+				checkForMail();
+			}
+		});
+
+		// exit
+		addMenuItem(bar, "Exit", 'x', new AbstractAction()
+		{
+			@Override
+			public void actionPerformed(ActionEvent e)
+			{
+				EmailClientGUI.this.close();
+			}
+		});
+
+		return bar;
+	}
+
 	private void show()
 	{
 		frame.setLocationRelativeTo(null);
 		frame.setVisible(true);
 	}
 
-	//	/**
-	//	 * @return The menu bar, with various buttons such as exit, or compose mail
-	//	 */
-	//	private JMenuBar createMenuBar()
-	//	{
-	//		JMenuBar bar = new JMenuBar();
-	//
-	//
-	//		// compose
-	//		addMenuItem(bar, "Compose", 'c', new AbstractAction()
-	//		{
-	//			@Override
-	//			public void actionPerformed(ActionEvent e)
-	//			{
-	//				JOptionPane.showMessageDialog(EmailClientGUI.this.getFrame(), "Compose mail!");
-	//			}
-	//		});
-	//
-	//		// search
-	//		addMenuItem(bar, "Search", 's', new AbstractAction()
-	//		{
-	//			@Override
-	//			public void actionPerformed(ActionEvent e)
-	//			{
-	//				JOptionPane.showMessageDialog(EmailClientGUI.this.getFrame(), "Search mail!");
-	//			}
-	//		});
-	//
-	//		// exit
-	//		addMenuItem(bar, "Exit", 'x', new AbstractAction()
-	//		{
-	//			@Override
-	//			public void actionPerformed(ActionEvent e)
-	//			{
-	//				EmailClientGUI.this.close();
-	//			}
-	//		});
-	//
-	//		return bar;
-	//	}
-	//
-	//	private void addMenuItem(JMenuBar bar, String text, char mneumonic, Action action)
-	//	{
-	//		JButton item = new JButton();
-	//		item.setMnemonic(mneumonic);
-	//		action.putValue(Action.NAME, text);
-	//		item.setAction(action);
-	//		bar.add(item);
-	//	}
-	//
-	//	public JFrame getFrame()
-	//	{
-	//		return frame;
-	//	}
+	private void addMenuItem(JMenuBar bar, String text, char mneumonic, Action action)
+	{
+		JButton item = new JButton();
+		item.setMnemonic(mneumonic);
+		action.putValue(Action.NAME, text);
+		item.setAction(action);
+		bar.add(item);
+	}
 
 	public void close()
 	{
 		frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
+	}
+
+	public JFrame getFrame()
+	{
+		return frame;
 	}
 }
