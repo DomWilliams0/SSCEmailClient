@@ -61,12 +61,11 @@ public class Email
 		return to;
 	}
 
-	public String getContent()
+	public EmailContent getContent()
 	{
-		return content.getContent();
+		return content;
 	}
 
-	public List<String> getAttachmentNames() {return content.getAttachmentNames();}
 
 	public Date getDateTime()
 	{
@@ -97,71 +96,85 @@ public class Email
 	{
 		return mailboxReference;
 	}
-}
 
-class EmailContent
-{
-	private boolean loaded;
-	private String content;
-	private LinkedHashMap<String, Integer> attachmentNames;
-	private Message message;
-
-	public EmailContent(Message message)
+	@Override
+	public String toString()
 	{
-		this.message = message;
-		this.loaded = false;
-		this.content = null;
-		this.attachmentNames = new LinkedHashMap<>();
+		return "Email{" +
+				"subject='" + subject + '\'' +
+				", from='" + from + '\'' +
+				", to='" + to + '\'' +
+				", content=" + content.getContent() +
+				", date=" + date +
+				", read=" + read +
+				", recent=" + recent +
+				'}';
 	}
 
-	public String getContent()
+	public class EmailContent
 	{
-		ensureLoaded();
-		return content;
-	}
+		private boolean loaded;
+		private String content;
+		private LinkedHashMap<String, Integer> attachmentNames;
+		private Message message;
 
-	private void ensureLoaded()
-	{
-		if (!loaded)
-			loaded = Mailbox.readContent(message, this);
-	}
-
-	public void setContent(String content)
-	{
-		this.content = content;
-	}
-
-	public List<String> getAttachmentNames()
-	{
-		ensureLoaded();
-
-		List<String> names = new ArrayList<>();
-		names.addAll(attachmentNames.keySet());
-		return names;
-	}
-
-	public void addAttachment(String name, int bodyPartIndex)
-	{
-		attachmentNames.put(name, bodyPartIndex);
-	}
-
-	public InputStream getAttachmentInputStream(String name)
-	{
-		Integer bodyPartIndex = attachmentNames.get(name);
-		if (bodyPartIndex == null)
-			return null;
-
-		try
+		public EmailContent(Message message)
 		{
-			Multipart multipart = (Multipart) message.getContent();
-			BodyPart bodyPart = multipart.getBodyPart(bodyPartIndex);
-			return bodyPart.getInputStream();
+			this.message = message;
+			this.loaded = false;
+			this.content = null;
+			this.attachmentNames = new LinkedHashMap<>();
+		}
 
-
-		} catch (IOException | MessagingException | IndexOutOfBoundsException e)
+		public String getContent()
 		{
-			Logging.severe("Could not get attachment stream for '" + name + "'", e);
-			return null;
+			ensureLoaded();
+			return content;
+		}
+
+		private void ensureLoaded()
+		{
+			if (!loaded)
+				loaded = Mailbox.readContent(message, this);
+		}
+
+		public void setContent(String content)
+		{
+			this.content = content;
+		}
+
+		public List<String> getAttachmentNames()
+		{
+			ensureLoaded();
+
+			List<String> names = new ArrayList<>();
+			names.addAll(attachmentNames.keySet());
+			return names;
+		}
+
+		public void addAttachment(String name, int bodyPartIndex)
+		{
+			attachmentNames.put(name, bodyPartIndex);
+		}
+
+		public InputStream getAttachmentInputStream(String name)
+		{
+			Integer bodyPartIndex = attachmentNames.get(name);
+			if (bodyPartIndex == null)
+				return null;
+
+			try
+			{
+				Multipart multipart = (Multipart) message.getContent();
+				BodyPart bodyPart = multipart.getBodyPart(bodyPartIndex);
+				return bodyPart.getInputStream();
+
+
+			} catch (IOException | MessagingException | IndexOutOfBoundsException e)
+			{
+				Logging.severe("Could not get attachment stream for '" + name + "'", e);
+				return null;
+			}
 		}
 	}
 }

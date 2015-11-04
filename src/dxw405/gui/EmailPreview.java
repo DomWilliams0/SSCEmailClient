@@ -67,9 +67,10 @@ public class EmailPreview extends JPanel
 		sent.setText(makeTitle("Sent", selected.getDate()));
 		subject.setText(selected.getSubject());
 
-		attachments.setAttachments(selected.getAttachmentNames());
+		Email.EmailContent emailContent = selected.getContent();
+		attachments.setEmail(selected);
 
-		content.setText(selected.getContent());
+		content.setText(emailContent.getContent());
 		content.setCaretPosition(0);
 
 	}

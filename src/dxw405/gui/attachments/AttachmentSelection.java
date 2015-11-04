@@ -1,5 +1,6 @@
 package dxw405.gui.attachments;
 
+import dxw405.Email;
 import dxw405.util.JPanelMouseAdapter;
 import dxw405.util.Utils;
 
@@ -20,6 +21,7 @@ public class AttachmentSelection extends JPanelMouseAdapter implements ActionLis
 	private Map<String, JPanel> itemCache;
 	private Map<String, JPanel> itemCacheBuffer;
 
+	private Email email;
 	private LinkedHashMap<String, File> attachments;
 	private JPanel attachmentPanel;
 	private JButton addButton;
@@ -34,7 +36,7 @@ public class AttachmentSelection extends JPanelMouseAdapter implements ActionLis
 		itemCache = new TreeMap<>();
 		itemCacheBuffer = new TreeMap<>();
 		attachments = new LinkedHashMap<>();
-		rightClickPopup = new AttachmentPopup(this);
+		rightClickPopup = new AttachmentPopup(this, editable);
 
 		setLayout(new BorderLayout());
 
@@ -49,64 +51,11 @@ public class AttachmentSelection extends JPanelMouseAdapter implements ActionLis
 		}
 
 		JScrollPane scrollPane = new JScrollPane(attachmentPanel);
-		scrollPane.setBorder(new EmptyBorder(0,0,0,0));
+		scrollPane.setBorder(new EmptyBorder(0, 0, 0, 0));
 		scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
 		scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
 
 		add(scrollPane, BorderLayout.CENTER);
-	}
-
-	public List<File> getAttachments()
-	{
-		List<File> files = new ArrayList<>();
-		files.addAll(attachments.values());
-		return files;
-	}
-
-	@Override
-	public void mousePressed(MouseEvent e)
-	{
-		onClick(e);
-	}
-
-	@Override
-	public void mouseReleased(MouseEvent e)
-	{
-		onClick(e);
-	}
-
-	private void onClick(MouseEvent e)
-	{
-		if (!e.isPopupTrigger())
-			return;
-
-		JPanel selected = (JPanel) e.getSource();
-		Component component = selected.getComponent(0);
-		if (!(component instanceof JLabel))
-			return;
-
-		rightClickPopup.display(component);
-	}
-
-	@Override
-	public void actionPerformed(ActionEvent e)
-	{
-		JFileChooser chooser = new JFileChooser();
-		chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-		chooser.setMultiSelectionEnabled(true);
-
-		int result = chooser.showOpenDialog(this);
-		if (result != JFileChooser.APPROVE_OPTION)
-			return;
-
-		File[] chosenFiles = chooser.getSelectedFiles();
-		if (chosenFiles == null || chosenFiles.length == 0)
-			return;
-
-		for (File file : chosenFiles)
-			attachments.put(file.getName(), file);
-
-		refresh();
 	}
 
 	public void refresh()
@@ -154,19 +103,81 @@ public class AttachmentSelection extends JPanelMouseAdapter implements ActionLis
 		toolTip.append("</html>");
 		attachment.setToolTipText(toolTip.toString());
 
-		// right click to remove
-		if (editable)
-			attachment.addMouseListener(this);
+		// right click context menu
+		attachment.addMouseListener(this);
 
 		return attachment;
 	}
 
-	public void setAttachments(List<String> names)
+	public List<File> getAttachments()
+	{
+		List<File> files = new ArrayList<>();
+		files.addAll(attachments.values());
+		return files;
+	}
+
+	public Email getEmail()
+	{
+		return email;
+	}
+
+	public void setEmail(Email email)
 	{
 		attachments.clear();
+		this.email = email;
 
-		for (String name : names)
-			attachments.put(name, null);
+		if (email != null)
+		{
+			List<String> names = email.getContent().getAttachmentNames();
+			for (String name : names)
+				attachments.put(name, null);
+		}
+
+		refresh();
+	}
+
+	@Override
+	public void mousePressed(MouseEvent e)
+	{
+		onClick(e);
+	}
+
+	@Override
+	public void mouseReleased(MouseEvent e)
+	{
+		onClick(e);
+	}
+
+	private void onClick(MouseEvent e)
+	{
+		if (!e.isPopupTrigger())
+			return;
+
+		JPanel selected = (JPanel) e.getSource();
+		Component component = selected.getComponent(0);
+		if (!(component instanceof JLabel))
+			return;
+
+		rightClickPopup.display(component, email);
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent e)
+	{
+		JFileChooser chooser = new JFileChooser();
+		chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+		chooser.setMultiSelectionEnabled(true);
+
+		int result = chooser.showOpenDialog(this);
+		if (result != JFileChooser.APPROVE_OPTION)
+			return;
+
+		File[] chosenFiles = chooser.getSelectedFiles();
+		if (chosenFiles == null || chosenFiles.length == 0)
+			return;
+
+		for (File file : chosenFiles)
+			attachments.put(file.getName(), file);
 
 		refresh();
 	}

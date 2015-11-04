@@ -33,7 +33,7 @@ public class Mailbox extends Observable implements Closeable
 	}
 
 
-	public static boolean readContent(Message message, EmailContent emailContent)
+	public static boolean readContent(Message message, Email.EmailContent emailContent)
 	{
 		try
 		{
