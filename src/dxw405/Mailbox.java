@@ -105,7 +105,6 @@ public class Mailbox extends Observable implements Closeable
 			connected = true;
 			Logging.info("Successfully connected to mailbox");
 
-			// test: list all emails in inbox
 			inbox = store.getFolder("inbox");
 			if (!inbox.isOpen())
 				inbox.open(Folder.READ_WRITE);
