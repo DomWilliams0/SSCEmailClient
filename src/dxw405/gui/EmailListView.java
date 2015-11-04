@@ -71,7 +71,7 @@ public class EmailListView extends JPanel implements Observer
 			@Override
 			public void actionPerformed(ActionEvent e)
 			{
-				// todo search
+				mailbox.search(textField.getText());
 			}
 		});
 
@@ -83,7 +83,7 @@ public class EmailListView extends JPanel implements Observer
 			public void actionPerformed(ActionEvent e)
 			{
 				textField.setText("");
-				// todo clear search
+				mailbox.search("");
 			}
 		});
 

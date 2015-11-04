@@ -8,6 +8,10 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
+import javax.mail.search.BodyTerm;
+import javax.mail.search.OrTerm;
+import javax.mail.search.SearchTerm;
+import javax.mail.search.SubjectTerm;
 import javax.swing.*;
 import java.io.Closeable;
 import java.io.File;
@@ -24,6 +28,7 @@ public class Mailbox extends Observable implements Closeable
 	private List<Email> emails;
 	private String emailAddress;
 	private int maxEmails;
+	private Message[] filteredMessages, allMessages;
 
 	public Mailbox(int maxEmails)
 	{
@@ -176,50 +181,16 @@ public class Mailbox extends Observable implements Closeable
 	 */
 	public void gatherMail(ProgressMonitor monitor)
 	{
-		emails.clear();
-
 		try
 		{
 			final int lastEmail = inbox.getMessageCount();
 			int firstEmail = maxEmails <= 0 ? 1 : lastEmail - maxEmails + 1;
 
-			Message[] messages = inbox.getMessages(firstEmail, lastEmail);
+			allMessages = inbox.getMessages(firstEmail, lastEmail);
+			filteredMessages = new Message[allMessages.length];
+			System.arraycopy(allMessages, 0, filteredMessages, 0, filteredMessages.length);
 
-			if (monitor != null)
-			{
-				monitor.setMaximum(messages.length);
-				monitor.setProgress(0);
-			}
-
-			for (int i = 0, messagesLength = messages.length; i < messagesLength; i++)
-			{
-				// cancelled early
-				if (monitor != null && monitor.isCanceled())
-				{
-					monitor.setNote("Cancelled");
-					Logging.info("Cancelled email collection");
-					break;
-				}
-
-				Message message = messages[i];
-				Flags flags = message.getFlags();
-
-				String subject = message.getSubject();
-				String from = getSenders(message);
-				String to = getRecipients(message);
-				Date date = message.getReceivedDate();
-				boolean read = flags.contains(Flags.Flag.SEEN);
-				boolean recent = flags.contains(Flags.Flag.RECENT);
-
-				Email email = new Email(subject, from, to, date, read, recent, message);
-				addEmail(email);
-
-				if (monitor != null)
-				{
-					monitor.setProgress(i + 1);
-					monitor.setNote("Gathered " + (i + 1) + "/" + messages.length);
-				}
-			}
+			parseEmails(monitor);
 
 		} catch (MessagingException e)
 		{
@@ -228,6 +199,53 @@ public class Mailbox extends Observable implements Closeable
 
 		setChanged();
 		notifyObservers();
+	}
+
+	/**
+	 * Fills the emails list with the Messages that should be displayed
+	 *
+	 * @param monitor An optional progress monitor
+	 */
+	private void parseEmails(ProgressMonitor monitor) throws MessagingException
+	{
+		emails.clear();
+
+		if (monitor != null)
+		{
+			monitor.setMaximum(filteredMessages.length);
+			monitor.setProgress(0);
+		}
+
+
+		for (int i = 0, messagesLength = filteredMessages.length; i < messagesLength; i++)
+		{
+			// cancelled early
+			if (monitor != null && monitor.isCanceled())
+			{
+				monitor.setNote("Cancelled");
+				Logging.info("Cancelled email collection");
+				break;
+			}
+
+			Message message = filteredMessages[i];
+			Flags flags = message.getFlags();
+
+			String subject = message.getSubject();
+			String from = getSenders(message);
+			String to = getRecipients(message);
+			Date date = message.getReceivedDate();
+			boolean read = flags.contains(Flags.Flag.SEEN);
+			boolean recent = flags.contains(Flags.Flag.RECENT);
+
+			Email email = new Email(subject, from, to, date, read, recent, message);
+			addEmail(email);
+
+			if (monitor != null)
+			{
+				monitor.setProgress(i + 1);
+				monitor.setNote("Gathered " + (i + 1) + "/" + filteredMessages.length);
+			}
+		}
 	}
 
 	private String getSenders(Message message)
@@ -352,5 +370,40 @@ public class Mailbox extends Observable implements Closeable
 		message.setContent(multipart);
 
 		Transport.send(message);
+	}
+
+	public void search(String term)
+	{
+		SearchTerm st;
+		if (term == null)
+		{
+			st = new SearchTerm()
+			{
+				@Override
+				public boolean match(Message message)
+				{
+					return true;
+				}
+			};
+		} else
+		{
+			st = new OrTerm(
+					new SubjectTerm(term),
+					new BodyTerm(term)
+			);
+		}
+
+		try
+		{
+			Logging.fine("Searching for '" + term + "'");
+			filteredMessages = inbox.search(st, allMessages);
+			parseEmails(null);
+
+			setChanged();
+			notifyObservers();
+		} catch (MessagingException e)
+		{
+			Logging.severe("Could not search messages for '" + term + "'", e);
+		}
 	}
 }
