@@ -65,23 +65,33 @@ public class Mailbox extends Observable implements Closeable
 	/**
 	 * Connects to the given mailbox
 	 *
-	 * @param host     The imap server
-	 * @param port     The port to connect to
+	 * @param host     The incoming server host
+	 * @param port     The port to connect to for incoming mail
+	 * @param outHost  The outgoing server host
+	 * @param outPort  The port to connect to for sending mail
 	 * @param user     The email address
-	 * @param password The password
-	 * @return If the operation was successful
+	 * @param password The password   @return If the operation was successful
 	 */
-	public boolean connect(String host, int port, String user, String password)
+	public boolean connect(String host, int port, String outHost, String outPort, String user, String password)
 	{
-		// imap properties
-		Properties imapProperties = System.getProperties();
-		imapProperties.setProperty("mail.store.protocol", "imaps");
-		imapProperties.setProperty("mail.user", user);
-		imapProperties.setProperty("mail.password", password);
+		// connection properties
+		Properties connProps = System.getProperties();
+		connProps.put("mail.store.protocol", "imaps");
+		connProps.put("mail.smtp.auth", "true");
+		connProps.put("mail.smtp.starttls.enable", "true");
+		connProps.put("mail.smtp.host", outHost);
+		connProps.put("mail.smtp.port", outPort);
 
 		emailAddress = user;
 
-		session = Session.getDefaultInstance(imapProperties);
+		session = Session.getDefaultInstance(connProps, new Authenticator()
+		{
+			@Override
+			protected PasswordAuthentication getPasswordAuthentication()
+			{
+				return new PasswordAuthentication(user, password);
+			}
+		});
 		try
 		{
 			// connect

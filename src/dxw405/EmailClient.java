@@ -69,13 +69,17 @@ public class EmailClient
 			return false;
 		}
 
-		String host = creds.get("incoming-server");
-		int port = creds.getInt("incoming-port");
+		String inHost = creds.get("incoming-server");
+		int inPort = creds.getInt("incoming-port");
+
+		String outHost = creds.get("outgoing-server");
+		String outPort= creds.get("outgoing-port");
+
 		String user = creds.get("address");
 		String password = creds.get("password");
 
 		// connect to the mailbox
-		if (!mailbox.connect(host, port, user, password))
+		if (!mailbox.connect(inHost, inPort, outHost, outPort, user, password))
 		{
 			Logging.severe("Could not connect to the mailbox");
 			return false;

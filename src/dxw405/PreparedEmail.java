@@ -35,7 +35,13 @@ public class PreparedEmail
 
 	public List<Address> getRecipients(Message.RecipientType type)
 	{
-		return recipients.get(type);
+		List<Address> addresses = recipients.get(type);
+		if (addresses == null)
+		{
+			addresses = new ArrayList<>();
+			recipients.put(type, addresses);
+		}
+		return addresses;
 	}
 
 	public String getSubject()
