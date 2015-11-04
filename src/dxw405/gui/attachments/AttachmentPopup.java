@@ -48,7 +48,16 @@ public class AttachmentPopup extends JPopupMenu
 				@Override
 				public void actionPerformed(ActionEvent event)
 				{
-					String fileName = component.getText();
+					Thread openThread = new Thread(() -> {
+						openAttachment(component.getText());
+					});
+
+					openThread.start();
+
+				}
+
+				private void openAttachment(String fileName)
+				{
 					String quotedName = "'" + fileName + "'";
 
 					InputStream inputStream = email.getContent().getAttachmentInputStream(fileName);
