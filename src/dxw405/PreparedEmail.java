@@ -6,6 +6,7 @@ import javax.mail.Address;
 import javax.mail.Message;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -19,6 +20,7 @@ public class PreparedEmail
 	private Map<Message.RecipientType, List<Address>> recipients;
 	private String subject, body;
 	private List<String> errors;
+	private List<File> attachments;
 
 	public PreparedEmail()
 	{
@@ -31,6 +33,7 @@ public class PreparedEmail
 		this.subject = subject;
 		this.body = body;
 		this.errors = new ArrayList<>();
+		this.attachments = new ArrayList<>();
 	}
 
 	public List<Address> getRecipients(Message.RecipientType type)
@@ -124,5 +127,15 @@ public class PreparedEmail
 				", subject='" + subject + '\'' +
 				", body='" + body + '\'' +
 				'}';
+	}
+
+	public List<File> getAttachments()
+	{
+		return attachments;
+	}
+
+	public void setAttachments(List<File> attachments)
+	{
+		this.attachments = attachments;
 	}
 }

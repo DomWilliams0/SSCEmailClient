@@ -5,9 +5,12 @@ import dxw405.util.Logging;
 
 import javax.mail.*;
 import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeMultipart;
 import javax.swing.*;
 import java.io.Closeable;
+import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
@@ -285,8 +288,15 @@ public class Mailbox extends Observable implements Closeable
 		MimeMessage message = new MimeMessage(session);
 		message.setFrom(emailAddress);
 		message.setSubject(email.getSubject());
-		message.setText(email.getBody());
 
+		Multipart multipart = new MimeMultipart();
+
+		// body
+		BodyPart content = new MimeBodyPart();
+		content.setContent(email.getBody(), "text/plain");
+		multipart.addBodyPart(content);
+
+		// recipients
 		for (Field field : Field.values())
 		{
 			if (!field.isAddress())
@@ -300,6 +310,25 @@ public class Mailbox extends Observable implements Closeable
 			message.setRecipients(field.getRecipientType(), addresses);
 		}
 
+		// attachments
+		List<File> attachments = email.getAttachments();
+		if (!attachments.isEmpty())
+		{
+			for (File attachment : attachments)
+			{
+				try
+				{
+					MimeBodyPart attachmentBodyPart = new MimeBodyPart();
+					attachmentBodyPart.attachFile(attachment);
+					multipart.addBodyPart(attachmentBodyPart);
+				} catch (IOException e)
+				{
+					throw new MessagingException("Could not attach file '" + attachment.getName() + "': " + e.getMessage());
+				}
+			}
+		}
+
+		message.setContent(multipart);
 
 		Transport.send(message);
 	}

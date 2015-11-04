@@ -4,10 +4,12 @@ import dxw405.Email;
 import dxw405.Mailbox;
 import dxw405.PreparedEmail;
 import dxw405.util.JPanelMouseAdapter;
+import dxw405.util.Logging;
 
 import javax.mail.MessagingException;
 import javax.swing.*;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
@@ -95,6 +97,7 @@ public class ControllerPanel extends JPanelMouseAdapter implements ActionListene
 					JOptionPane.showMessageDialog(this, "Message sent!", "Success", JOptionPane.INFORMATION_MESSAGE);
 				} catch (MessagingException e)
 				{
+					Logging.severe("Could not send message", e);
 					JOptionPane.showMessageDialog(this, "The message could not be sent:\n" + e.getMessage(), "Failure", JOptionPane.ERROR_MESSAGE);
 				} finally
 				{
