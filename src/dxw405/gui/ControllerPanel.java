@@ -83,19 +83,24 @@ public class ControllerPanel extends JPanelMouseAdapter implements ActionListene
 		// send email
 		if (event.getActionCommand().equals(EmailComposePanel.SEND_COMMAND))
 		{
-			PreparedEmail email = emailComposePanel.prepareEmail();
-			if (email == null)
-				return;
+			JButton sendButton = (JButton) event.getSource();
+			sendButton.setEnabled(false);
 
-			try
+			PreparedEmail email = emailComposePanel.prepareEmail();
+			if (email != null)
 			{
-				mailbox.sendEmail(email);
-				JOptionPane.showMessageDialog(this, "Message sent!", "Success", JOptionPane.INFORMATION_MESSAGE);
-			} catch (MessagingException e)
-			{
-				JOptionPane.showMessageDialog(this, "The message could not be sent:\n" + e.getMessage(), "Failure", JOptionPane.ERROR_MESSAGE);
+				try
+				{
+					mailbox.sendEmail(email);
+					JOptionPane.showMessageDialog(this, "Message sent!", "Success", JOptionPane.INFORMATION_MESSAGE);
+				} catch (MessagingException e)
+				{
+					JOptionPane.showMessageDialog(this, "The message could not be sent:\n" + e.getMessage(), "Failure", JOptionPane.ERROR_MESSAGE);
+				}
+
 			}
 
+			sendButton.setEnabled(true);
 		}
 	}
 }
