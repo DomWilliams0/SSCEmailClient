@@ -103,14 +103,7 @@ public class AttachmentSelection extends JPanelMouseAdapter implements ActionLis
 		if (chosenFiles == null || chosenFiles.length == 0)
 			return;
 
-		setAttachments(chosenFiles);
-	}
-
-	public void setAttachments(File[] files)
-	{
-		removeAllAttachments();
-
-		for (File file : files)
+		for (File file : chosenFiles)
 			attachments.put(file.getName(), file);
 
 		refresh();
@@ -141,7 +134,7 @@ public class AttachmentSelection extends JPanelMouseAdapter implements ActionLis
 		itemCache.clear();
 		itemCache.putAll(itemCacheBuffer);
 
-		repaint();
+		revalidate();
 	}
 
 	private JPanel createAttachment(Map.Entry<String, File> entry)
