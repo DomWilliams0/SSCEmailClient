@@ -1,6 +1,7 @@
 package dxw405.gui;
 
 import dxw405.Email;
+import dxw405.gui.attachments.AttachmentSelection;
 
 import javax.swing.*;
 import java.awt.*;
@@ -12,12 +13,15 @@ public class EmailPreview extends JPanel
 	private JLabel sent;
 	private JLabel subject;
 	private JTextPane content;
+	private AttachmentSelection attachments;
 
 	public EmailPreview()
 	{
 		setLayout(new BorderLayout());
 
 		// top: header info
+		JPanel headerContainerContainer = new JPanel(new BorderLayout());
+
 		JPanel headerContainer = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		JPanel header = new JPanel(new GridBagLayout());
 
@@ -26,6 +30,7 @@ public class EmailPreview extends JPanel
 		sent = new JLabel();
 		subject = new JLabel();
 		subject.setFont(subject.getFont().deriveFont(Font.BOLD, 16f));
+		attachments = new AttachmentSelection(false);
 
 		GridBagConstraints c = new GridBagConstraints();
 		c.gridx = 0;
@@ -39,12 +44,16 @@ public class EmailPreview extends JPanel
 		header.add(subject, c);
 		headerContainer.add(header);
 
+		headerContainerContainer.add(headerContainer, BorderLayout.CENTER);
+		headerContainerContainer.add(attachments, BorderLayout.SOUTH);
+
 		// centre: content
 		content = new JTextPane();
 		content.setEditable(false);
 		JScrollPane contentScrollPane = new JScrollPane(content);
 
-		add(headerContainer, BorderLayout.NORTH);
+
+		add(headerContainerContainer, BorderLayout.NORTH);
 		add(contentScrollPane, BorderLayout.CENTER);
 	}
 
@@ -58,8 +67,11 @@ public class EmailPreview extends JPanel
 		sent.setText(makeTitle("Sent", selected.getDate()));
 		subject.setText(selected.getSubject());
 
+		attachments.setAttachments(selected.getAttachmentNames());
+
 		content.setText(selected.getContent());
 		content.setCaretPosition(0);
+
 	}
 
 	private String makeTitle(String label, String field)

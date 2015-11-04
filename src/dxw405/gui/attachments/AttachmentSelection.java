@@ -4,6 +4,8 @@ import dxw405.util.JPanelMouseAdapter;
 import dxw405.util.Utils;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.TitledBorder;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.FlowLayout;
@@ -23,9 +25,12 @@ public class AttachmentSelection extends JPanelMouseAdapter implements ActionLis
 	private JButton addButton;
 
 	private AttachmentPopup rightClickPopup;
+	private boolean editable;
 
-	public AttachmentSelection()
+	public AttachmentSelection(boolean editable)
 	{
+		this.editable = editable;
+
 		itemCache = new TreeMap<>();
 		itemCacheBuffer = new TreeMap<>();
 		attachments = new LinkedHashMap<>();
@@ -35,11 +40,16 @@ public class AttachmentSelection extends JPanelMouseAdapter implements ActionLis
 
 		attachmentPanel = new JPanel();
 		attachmentPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
-		this.addButton = new JButton("Add Attachment");
-		this.addButton.addActionListener(this);
-		attachmentPanel.add(this.addButton);
+		attachmentPanel.setBorder(new TitledBorder("Attachments"));
+		if (editable)
+		{
+			addButton = new JButton("Add Attachment");
+			addButton.addActionListener(this);
+			attachmentPanel.add(addButton);
+		}
 
 		JScrollPane scrollPane = new JScrollPane(attachmentPanel);
+		scrollPane.setBorder(new EmptyBorder(0,0,0,0));
 		scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
 		scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
 
@@ -76,8 +86,6 @@ public class AttachmentSelection extends JPanelMouseAdapter implements ActionLis
 			return;
 
 		rightClickPopup.display(component);
-
-
 	}
 
 	@Override
@@ -95,7 +103,14 @@ public class AttachmentSelection extends JPanelMouseAdapter implements ActionLis
 		if (chosenFiles == null || chosenFiles.length == 0)
 			return;
 
-		for (File file : chosenFiles)
+		setAttachments(chosenFiles);
+	}
+
+	public void setAttachments(File[] files)
+	{
+		removeAllAttachments();
+
+		for (File file : files)
 			attachments.put(file.getName(), file);
 
 		refresh();
@@ -104,13 +119,14 @@ public class AttachmentSelection extends JPanelMouseAdapter implements ActionLis
 	public void refresh()
 	{
 		attachmentPanel.removeAll();
-		attachmentPanel.add(addButton);
+		if (editable)
+			attachmentPanel.add(addButton);
 
 		itemCacheBuffer.clear();
 
 		for (Map.Entry<String, File> entry : attachments.entrySet())
 		{
-			String key = entry.getValue().getAbsolutePath();
+			String key = entry.getKey();
 			JPanel attachment = itemCache.get(key);
 			if (attachment == null)
 			{
@@ -124,6 +140,8 @@ public class AttachmentSelection extends JPanelMouseAdapter implements ActionLis
 
 		itemCache.clear();
 		itemCache.putAll(itemCacheBuffer);
+
+		repaint();
 	}
 
 	private JPanel createAttachment(Map.Entry<String, File> entry)
@@ -133,12 +151,31 @@ public class AttachmentSelection extends JPanelMouseAdapter implements ActionLis
 		attachment.add(new JLabel(entry.getKey()));
 
 		// hover for info
-		attachment.setToolTipText("<html>File name: " + entry + "<br/>File size: " + Utils.readableFileSize(entry.getValue()) + "</html>");
+		StringBuilder toolTip = new StringBuilder();
+		toolTip.append("<html>File name: ").append(entry);
+
+		File file = entry.getValue();
+		if (file != null)
+			toolTip.append("<br/>File size: ").append(Utils.readableFileSize(file));
+
+		toolTip.append("</html>");
+		attachment.setToolTipText(toolTip.toString());
 
 		// right click to remove
-		attachment.addMouseListener(this);
+		if (editable)
+			attachment.addMouseListener(this);
 
 		return attachment;
+	}
+
+	public void setAttachments(List<String> names)
+	{
+		attachments.clear();
+
+		for (String name : names)
+			attachments.put(name, null);
+
+		refresh();
 	}
 
 	public void removeAttachment(String attachmentName)

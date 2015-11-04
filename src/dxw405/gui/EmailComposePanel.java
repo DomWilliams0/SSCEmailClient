@@ -5,7 +5,6 @@ import dxw405.PreparedEmail;
 import dxw405.gui.attachments.AttachmentSelection;
 
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
 import javax.swing.text.JTextComponent;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
@@ -39,7 +38,7 @@ public class EmailComposePanel extends JPanel
 
 		panel.add(createEmailFieldHeaders(), BorderLayout.CENTER);
 
-		attachments = new AttachmentSelection();
+		attachments = new AttachmentSelection(true);
 		panel.add(attachments, BorderLayout.SOUTH);
 
 		return panel;
@@ -48,7 +47,6 @@ public class EmailComposePanel extends JPanel
 	private JPanel createBody()
 	{
 		JPanel bodyPanel = new JPanel(new BorderLayout());
-		bodyPanel.setBorder(new EmptyBorder(0, BORDER_THICKNESS, 0, BORDER_THICKNESS));
 
 		JTextArea textArea = new JTextArea("");
 		inputs.put(Field.BODY.getName(), textArea);
