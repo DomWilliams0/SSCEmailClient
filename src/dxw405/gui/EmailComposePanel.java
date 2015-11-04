@@ -104,6 +104,7 @@ public class EmailComposePanel extends JPanel
 				continue;
 
 			JTextField textField = new JTextField(field.getDefaultValue());
+			textField.moveCaretPosition(field.getDefaultValue().length());
 			inputs.put(field.getName(), textField);
 
 			fieldPanel.add(textField, c);
