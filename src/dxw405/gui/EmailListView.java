@@ -5,6 +5,8 @@ import dxw405.Mailbox;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseListener;
 import java.util.*;
 import java.util.List;
@@ -31,6 +33,68 @@ public class EmailListView extends JPanel implements Observer
 
 		setLayout(new BorderLayout());
 		add(scrollPane, BorderLayout.CENTER);
+		add(createSearchBox(), BorderLayout.NORTH);
+	}
+
+	private JPanel createSearchBox()
+	{
+		JPanel panel = new JPanel(new GridBagLayout());
+
+		// text field
+		JTextField textField = new JTextField()
+		{
+			private static final String placeholder = "Search";
+
+			@Override
+			public void paintComponent(Graphics g)
+			{
+				super.paintComponent(g);
+				if (getText().length() == 0)
+				{
+					int h = getHeight();
+					((Graphics2D) g).setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+					Insets ins = getInsets();
+					FontMetrics fm = g.getFontMetrics();
+					int c0 = getBackground().getRGB();
+					int c1 = getForeground().getRGB();
+					int m = 0xfefefefe;
+					int c2 = ((c0 & m) >>> 1) + ((c1 & m) >>> 1);
+					g.setColor(new Color(c2, true));
+					g.drawString(placeholder, ins.left, h / 2 + fm.getAscent() / 2 - 2);
+				}
+			}
+		};
+
+		// enter: search
+		textField.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), new AbstractAction()
+		{
+			@Override
+			public void actionPerformed(ActionEvent e)
+			{
+				// todo search
+			}
+		});
+
+
+		// escape: clear
+		textField.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), new AbstractAction()
+		{
+			@Override
+			public void actionPerformed(ActionEvent e)
+			{
+				textField.setText("");
+				// todo clear search
+			}
+		});
+
+		GridBagConstraints c = new GridBagConstraints();
+		c.fill = GridBagConstraints.BOTH;
+		c.weightx = 1;
+		c.insets.set(5, 5, 5, 5);
+
+		panel.add(textField, c);
+
+		return panel;
 	}
 
 	@Override
