@@ -6,8 +6,6 @@ import dxw405.util.Logging;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 
 public class MailGatherer
 {
@@ -42,14 +40,14 @@ public class MailGatherer
 	{
 		private ProgressMonitor monitor;
 
-		private JButton cancelButton;
 		private JProgressBar progressBar;
+		private JOptionPane optionPane;
 
 		public Worker(ProgressMonitor monitor)
 		{
 			this.monitor = monitor;
-			this.cancelButton = null;
 			this.progressBar = null;
+			this.optionPane = null;
 		}
 
 		@Override
@@ -87,41 +85,27 @@ public class MailGatherer
 
 		private void findDialogComponents()
 		{
-			if (cancelButton == null || progressBar == null)
+			if (progressBar == null)
 			{
-				// prevent closing
-				JDialog dialog = (JDialog) monitor.getAccessibleContext().getAccessibleParent();
-				dialog.addWindowListener(new WindowAdapter()
-				{
-					@Override
-					public void windowClosing(WindowEvent e)
-					{
-						EmailClient.halt("Mailbox connection interrupted");
-					}
-				});
-
-				// get cancel button and progress bar
-				recurse(dialog);
+				// get progress bar
+				recurse((JDialog) monitor.getAccessibleContext().getAccessibleParent(), false);
 			}
 		}
 
-		private boolean recurse(Container c)
+		private boolean recurse(Container c, boolean cancelButtonDone)
 		{
 			Component[] components = c.getComponents();
 			for (Component child : components)
 			{
 				// complete
-				if (cancelButton != null && progressBar != null)
-					return true;
-
-				// recurse
-				if (child != null && recurse((Container) child))
+				if (cancelButtonDone && optionPane != null && progressBar != null)
 					return true;
 
 				// cancel button
-				if (cancelButton == null && child instanceof JButton && ((JButton) child).getText().equals("Cancel"))
+				if (!cancelButtonDone && child instanceof JButton && ((JButton) child).getText().equals("Cancel"))
 				{
-					cancelButton = (JButton) child;
+					cancelButtonDone = true;
+					child.setVisible(false);
 				}
 
 				// progress bar
@@ -129,6 +113,16 @@ public class MailGatherer
 				{
 					progressBar = (JProgressBar) child;
 				}
+
+				// option pane
+				else if (optionPane == null && child instanceof JOptionPane)
+				{
+					optionPane = (JOptionPane) child;
+				}
+
+				// recurse
+				if (recurse((Container) child, cancelButtonDone))
+					return true;
 			}
 
 			return false;
@@ -138,7 +132,6 @@ public class MailGatherer
 		private void setIndeterminate(boolean indeterminate)
 		{
 			progressBar.setIndeterminate(indeterminate);
-			cancelButton.setVisible(!indeterminate);
 		}
 
 

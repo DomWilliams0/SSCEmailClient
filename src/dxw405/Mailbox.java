@@ -175,7 +175,6 @@ public class Mailbox extends Observable implements Closeable
 				{
 					monitor.setNote("Cancelled");
 					Logging.info("Cancelled email collection");
-					emails.clear();
 					break;
 				}
 
