@@ -7,8 +7,10 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.ActionListener;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 
 public class RulesPanel extends JPanel
 {
@@ -16,7 +18,7 @@ public class RulesPanel extends JPanel
 
 	private Mailbox mailbox;
 	private JPanel ruleList, controlPanel;
-	private Map<Rule, JPanel> rules;
+	private Map<Rule, RulePanel> rules;
 
 	private GridBagConstraints constraints;
 
@@ -44,7 +46,7 @@ public class RulesPanel extends JPanel
 		// default rule
 		addRule("Spam", "lucky winner");
 
-		addRuleSpace();
+		addPlaceholder();
 		addRuleControl();
 	}
 
@@ -52,35 +54,31 @@ public class RulesPanel extends JPanel
 	{
 		Rule r = new Rule(flag, keyword);
 
-		JPanel rulePanel = createRulePanel(r);
+		RulePanel rulePanel = createRulePanel(r);
 		addToList(rulePanel);
 
-		if (r.isValid())
-			rules.put(r, rulePanel);
+		rules.put(r, rulePanel);
 
 		rulePanel.repaint();
 	}
 
-	private void addRuleSpace()
+	private void addPlaceholder()
 	{
-		addRule(null, null);
+		addRule("", "");
 	}
 
 	private void addRuleControl()
 	{
 		ActionListener addRemoveListener = e -> {
 			boolean remove = e.getActionCommand().equals("-");
-			int count = ruleList.getComponentCount();
 
 			if (remove)
 			{
-				count -= 2; // - 2 for +/- and placeholder
-
 				// empty
-				if (count <= 0)
+				if (rules.isEmpty())
 					return;
 
-				int compIndex = count - 1;
+				int compIndex = rules.size() - 1;
 
 				Rule rule = ((RulePanel) ruleList.getComponent(compIndex)).rule;
 				rules.remove(rule);
@@ -89,11 +87,11 @@ public class RulesPanel extends JPanel
 				ruleList.revalidate();
 			} else
 			{
-				// remove control and re-add
-				ruleList.remove(count - 1);
+				// remove control
+				ruleList.remove(rules.size());
 
-				addRule("", "");
-
+				// re-add with new placeholder
+				addPlaceholder();
 				addToList(controlPanel);
 
 				revalidate();
@@ -101,33 +99,63 @@ public class RulesPanel extends JPanel
 
 		};
 
-		controlPanel = new JPanel();
+		controlPanel = new JPanel(new GridBagLayout());
+		GridBagConstraints c = new GridBagConstraints();
+		c.ipadx = 10;
+		c.ipady = 2;
 
+		// +/-
 		JButton plus = new JButton("+");
 		plus.setActionCommand("+");
 		plus.addActionListener(addRemoveListener);
-		controlPanel.add(plus);
+		controlPanel.add(plus, c);
 
 		JButton minus = new JButton("-");
 		minus.setActionCommand("-");
 		minus.addActionListener(addRemoveListener);
-		controlPanel.add(minus);
+		controlPanel.add(minus, c);
+
+		// apply button
+		JButton apply = new JButton("Apply");
+		apply.addActionListener(e -> mailbox.applyRules(gatherRules()));
+		c.gridy = 1;
+		c.gridx = 0;
+		c.gridwidth = 2;
+		c.insets.top = c.insets.bottom = 5;
+		controlPanel.add(apply, c);
 
 		addToList(controlPanel);
 	}
 
-	private JPanel createRulePanel(Rule rule)
+	private Set<Rule> gatherRules()
 	{
-		JPanel rulePanel = new RulePanel(new GridLayout(1, 3), rule);
+		Set<Map.Entry<Rule, RulePanel>> entries = rules.entrySet();
+		Set<Rule> rules = new HashSet<>();
+
+		for (Map.Entry<Rule, RulePanel> entry : entries)
+		{
+			entry.getValue().updateRule();
+			rules.add(entry.getKey());
+		}
+
+		return rules;
+	}
+
+	private RulePanel createRulePanel(Rule rule)
+	{
+		RulePanel rulePanel = new RulePanel(new GridLayout(1, 3), rule);
 		rulePanel.setBorder(BORDER);
 
+		// flag
 		JTextField flag = new TextFieldPlaceholder("Flag Name");
-		flag.setText(rule.flag);
+		rulePanel.setFlagField(flag);
 
+		// colon separator
 		JLabel sep = new JLabel(":", SwingConstants.CENTER);
 
+		// keyword
 		JTextField keyword = new TextFieldPlaceholder("Keywords");
-		keyword.setText(rule.keyword);
+		rulePanel.setKeywordField(keyword);
 
 		GridBagConstraints c = new GridBagConstraints();
 		c.insets.set(5, 5, 5, 5);
@@ -152,7 +180,7 @@ public class RulesPanel extends JPanel
 		ruleList.add(component, constraints);
 	}
 
-	private class Rule
+	public class Rule
 	{
 		String flag;
 		String keyword;
@@ -165,7 +193,7 @@ public class RulesPanel extends JPanel
 
 		public boolean isValid()
 		{
-			return flag != null && keyword != null;
+			return flag != null && !flag.isEmpty() && keyword != null && !keyword.isEmpty();
 		}
 
 		@Override
@@ -181,11 +209,48 @@ public class RulesPanel extends JPanel
 	private class RulePanel extends JPanel
 	{
 		private Rule rule;
+		private JTextField flagField;
+		private JTextField keywordField;
 
 		public RulePanel(LayoutManager layout, Rule rule)
 		{
 			super(layout);
 			this.rule = rule;
+			this.flagField = null;
+			this.keywordField = null;
+		}
+
+		public Rule getRule()
+		{
+			return rule;
+		}
+
+		public JTextField getFlagField()
+		{
+			return flagField;
+		}
+
+		public void setFlagField(JTextField flagField)
+		{
+			this.flagField = flagField;
+			this.flagField.setText(rule.flag);
+		}
+
+		public JTextField getKeywordField()
+		{
+			return keywordField;
+		}
+
+		public void setKeywordField(JTextField keywordField)
+		{
+			this.keywordField = keywordField;
+			this.keywordField.setText(rule.keyword);
+		}
+
+		public void updateRule()
+		{
+			rule.flag = flagField.getText();
+			rule.keyword = keywordField.getText();
 		}
 	}
 

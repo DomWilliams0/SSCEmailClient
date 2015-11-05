@@ -1,6 +1,7 @@
 package dxw405;
 
 import com.sun.mail.imap.IMAPMessage;
+import dxw405.gui.panels.RulesPanel;
 import dxw405.util.Logging;
 
 import javax.mail.*;
@@ -412,6 +413,18 @@ public class Mailbox extends Observable implements Closeable
 		} catch (MessagingException e)
 		{
 			Logging.severe("Could not search messages for '" + term + "'", e);
+		}
+	}
+
+	public void applyRules(Set<RulesPanel.Rule> rules)
+	{
+		for (RulesPanel.Rule rule : rules)
+		{
+			if (!rule.isValid())
+				continue;
+
+			// todo
+			Logging.fine("Applying rule: " + rule);
 		}
 	}
 }
