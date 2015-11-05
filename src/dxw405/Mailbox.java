@@ -397,35 +397,69 @@ public class Mailbox extends Observable implements Closeable
 
 	public void applyRules(Set<RulesPanel.Rule> rules)
 	{
+		applyRules(rules, null);
+	}
+
+	public void applyRules(Set<RulesPanel.Rule> rules, ProgressMonitor monitor)
+	{
 		// remove all user flags
 		try
 		{
+			if (monitor != null)
+			{
+				monitor.setNote("Removing previous flags");
+				monitor.setProgress(0);
+				monitor.setMaximum(emails.size());
+			}
 
-		for (Email email : emails)
-		{
-			Message m = email.getMailboxReference();
-			String[] userFlags = m.getFlags().getUserFlags();
-			for (String userFlag : userFlags)
-				m.setFlags(new Flags(userFlag), false);
-		}
+			for (int i = 0, emailsSize = emails.size(); i < emailsSize; i++)
+			{
+				Message m = emails.get(i).getMailboxReference();
+				String[] userFlags = m.getFlags().getUserFlags();
+				for (String userFlag : userFlags)
+					m.setFlags(new Flags(userFlag), false);
+
+				if (monitor != null)
+					monitor.setProgress(i + 1);
+			}
 		} catch (MessagingException e)
 		{
 			Logging.severe("Could not remove all user flags", e);
+			if (monitor != null)
+			{
+				monitor.setNote("Failed to remove user flags");
+				monitor.setProgress(0);
+			}
+		}
+
+		if (monitor != null)
+		{
+			monitor.setNote("Applying rules");
+			monitor.setProgress(0);
 		}
 
 		// apply rules
+		int ruleIndex = 1;
+		rules.removeIf(r -> !r.isValid());
+
 		for (RulesPanel.Rule rule : rules)
 		{
-			if (!rule.isValid())
-				continue;
+			if (monitor != null)
+			{
+				monitor.setNote("Applying rule " + ruleIndex++ + "/" + rules.size());
+				monitor.setProgress(0);
+			}
 
 			Flags flag = new Flags(rule.getFlag());
 
 			try
 			{
-				for (Email email : emails)
+				for (int i = 0, emailsSize = emails.size(); i < emailsSize; i++)
 				{
+					Email email = emails.get(i);
 					Message m = email.getMailboxReference();
+					if (monitor != null && i != monitor.getMaximum() - 1)
+						monitor.setProgress(i + 1);
 
 					// add new flag
 					if (rule.satisfiedBy(email))
@@ -438,12 +472,7 @@ public class Mailbox extends Observable implements Closeable
 		}
 
 		Logging.fine("Applied " + rules.size() + " rules to " + emails.size() + " emails");
-		gatherMail();
-	}
-
-	public void gatherMail()
-	{
-		gatherMail(null);
+		gatherMail(monitor);
 	}
 
 	/**
@@ -471,5 +500,10 @@ public class Mailbox extends Observable implements Closeable
 
 		setChanged();
 		notifyObservers();
+	}
+
+	public void gatherMail()
+	{
+		gatherMail(null);
 	}
 }

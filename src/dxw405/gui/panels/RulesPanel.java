@@ -3,6 +3,7 @@ package dxw405.gui.panels;
 import dxw405.Email;
 import dxw405.Mailbox;
 import dxw405.gui.TextFieldPlaceholder;
+import dxw405.gui.workers.RuleApplierWorker;
 
 import javax.mail.search.BodyTerm;
 import javax.mail.search.OrTerm;
@@ -122,7 +123,7 @@ public class RulesPanel extends JPanel
 
 		// apply button
 		JButton apply = new JButton("Apply");
-		apply.addActionListener(e -> mailbox.applyRules(gatherRules()));
+		apply.addActionListener(e -> new RuleApplierWorker(mailbox, gatherRules()).run(this));
 		c.gridy = 1;
 		c.gridx = 0;
 		c.gridwidth = 2;
