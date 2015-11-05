@@ -9,10 +9,7 @@ import javax.mail.MessagingException;
 import javax.mail.Multipart;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.LinkedHashMap;
-import java.util.List;
+import java.util.*;
 
 /**
  * String representation of an email message
@@ -29,9 +26,11 @@ public class Email
 
 	private boolean read;
 	private boolean recent;
+	private List<String> userFlags;
+
 	private Message mailboxReference;
 
-	public Email(String subject, String from, String to, Date date, boolean read, boolean recent, Message mailboxReference)
+	public Email(String subject, String from, String to, Date date, boolean read, boolean recent, String[] userFlags, Message mailboxReference)
 	{
 		this.subject = subject;
 		this.from = from;
@@ -43,7 +42,15 @@ public class Email
 
 		this.recent = recent;
 		this.read = read;
+		this.userFlags = new ArrayList<>(userFlags.length);
+		Collections.addAll(this.userFlags, userFlags);
+
 		this.mailboxReference = mailboxReference;
+	}
+
+	public List<String> getUserFlags()
+	{
+		return userFlags;
 	}
 
 	public String getSubject()

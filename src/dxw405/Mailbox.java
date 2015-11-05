@@ -237,8 +237,9 @@ public class Mailbox extends Observable implements Closeable
 			Date date = message.getReceivedDate();
 			boolean read = flags.contains(Flags.Flag.SEEN);
 			boolean recent = flags.contains(Flags.Flag.RECENT);
+			String[] userFlags = flags.getUserFlags();
 
-			Email email = new Email(subject, from, to, date, read, recent, message);
+			Email email = new Email(subject, from, to, date, read, recent, userFlags, message);
 			addEmail(email);
 
 			if (monitor != null)
@@ -439,8 +440,16 @@ public class Mailbox extends Observable implements Closeable
 			{
 				for (Email email : emails)
 				{
-					boolean satisfied = rule.satisfiedBy(email);
-					email.getMailboxReference().setFlags(flag, satisfied);
+						Message m = email.getMailboxReference();
+
+					// remove all flags
+					String[] userFlags = m.getFlags().getUserFlags();
+					for (String userFlag : userFlags)
+						m.setFlags(new Flags(userFlag), false);
+
+					// add new flag
+					if (rule.satisfiedBy(email))
+						m.setFlags(flag, true);
 				}
 			} catch (MessagingException e)
 			{
@@ -449,7 +458,6 @@ public class Mailbox extends Observable implements Closeable
 		}
 
 		Logging.fine("Applied " + rules.size() + " rules to " + emails.size() + " emails");
-		setChanged();
-		notifyObservers();
+		gatherMail();
 	}
 }

@@ -14,6 +14,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.*;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class EmailListView extends JPanelMouseAdapter implements Observer
 {
@@ -257,10 +258,14 @@ public class EmailListView extends JPanelMouseAdapter implements Observer
 			date.setText(display(value.getDate()));
 			from.setText(display(value.getFrom()));
 
+			List<String> flags = value.getUserFlags();
+
+			// recent flag
 			if (value.isRecent())
-				meta.setText("[RECENT]");
-			else
-				meta.setText("");
+				flags.add(0, "recent");
+
+			String flagsString = String.join(", ", flags.stream().map(e -> "[" + e.toUpperCase() + "]").collect(Collectors.toList()));
+			meta.setText(flagsString.isEmpty() ? "" : "Flags: " + flagsString);
 
 			return this;
 		}
