@@ -1,4 +1,4 @@
-package dxw405.gui;
+package dxw405.gui.panels;
 
 import dxw405.Email;
 import dxw405.Mailbox;
