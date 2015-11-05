@@ -2,6 +2,7 @@ package dxw405;
 
 import com.sun.mail.imap.IMAPMessage;
 import dxw405.gui.panels.RulesPanel;
+import dxw405.gui.workers.Worker;
 import dxw405.util.Logging;
 
 import javax.mail.*;
@@ -13,7 +14,6 @@ import javax.mail.search.BodyTerm;
 import javax.mail.search.OrTerm;
 import javax.mail.search.SearchTerm;
 import javax.mail.search.SubjectTerm;
-import javax.swing.*;
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
@@ -296,52 +296,9 @@ public class Mailbox extends Observable implements Closeable
 		}
 	}
 
-	/**
-	 * Fills the emails list with the Messages that should be displayed
-	 *
-	 * @param monitor An optional progress monitor
-	 */
-	private void parseEmails(ProgressMonitor monitor) throws MessagingException
+	public void applyRules(Set<RulesPanel.Rule> rules)
 	{
-		emails.clear();
-
-		if (monitor != null)
-		{
-			monitor.setMaximum(filteredMessages.length);
-			monitor.setProgress(0);
-		}
-
-
-		for (int i = 0, messagesLength = filteredMessages.length; i < messagesLength; i++)
-		{
-			// cancelled early
-			if (monitor != null && monitor.isCanceled())
-			{
-				monitor.setNote("Cancelled");
-				Logging.info("Cancelled email collection");
-				break;
-			}
-
-			Message message = filteredMessages[i];
-			Flags flags = message.getFlags();
-
-			String subject = message.getSubject();
-			String from = getSenders(message);
-			String to = getRecipients(message);
-			Date date = message.getReceivedDate();
-			boolean read = flags.contains(Flags.Flag.SEEN);
-			boolean recent = flags.contains(Flags.Flag.RECENT);
-			String[] userFlags = flags.getUserFlags();
-
-			Email email = new Email(subject, from, to, date, read, recent, userFlags, message);
-			addEmail(email);
-
-			if (monitor != null)
-			{
-				monitor.setProgress(i + 1);
-				monitor.setNote("Gathered " + (i + 1) + "/" + filteredMessages.length);
-			}
-		}
+		applyRules(rules, Worker.OptionalProgressMonitor.EMPTY);
 	}
 
 	private String getSenders(Message message)
@@ -395,22 +352,12 @@ public class Mailbox extends Observable implements Closeable
 		return sb.toString();
 	}
 
-	public void applyRules(Set<RulesPanel.Rule> rules)
-	{
-		applyRules(rules, null);
-	}
-
-	public void applyRules(Set<RulesPanel.Rule> rules, ProgressMonitor monitor)
+	public void applyRules(Set<RulesPanel.Rule> rules, Worker.OptionalProgressMonitor monitor)
 	{
 		// remove all user flags
 		try
 		{
-			if (monitor != null)
-			{
-				monitor.setNote("Removing previous flags");
-				monitor.setProgress(0);
-				monitor.setMaximum(emails.size());
-			}
+			monitor.reset("Removing previous flags", emails.size());
 
 			for (int i = 0, emailsSize = emails.size(); i < emailsSize; i++)
 			{
@@ -419,24 +366,15 @@ public class Mailbox extends Observable implements Closeable
 				for (String userFlag : userFlags)
 					m.setFlags(new Flags(userFlag), false);
 
-				if (monitor != null)
-					monitor.setProgress(i + 1);
+				monitor.setProgress(i + 1);
 			}
 		} catch (MessagingException e)
 		{
 			Logging.severe("Could not remove all user flags", e);
-			if (monitor != null)
-			{
-				monitor.setNote("Failed to remove user flags");
-				monitor.setProgress(0);
-			}
+			monitor.reset("Failed to remove user flags");
 		}
 
-		if (monitor != null)
-		{
-			monitor.setNote("Applying rules");
-			monitor.setProgress(0);
-		}
+		monitor.reset("Applying rules");
 
 		// apply rules
 		int ruleIndex = 1;
@@ -444,11 +382,7 @@ public class Mailbox extends Observable implements Closeable
 
 		for (RulesPanel.Rule rule : rules)
 		{
-			if (monitor != null)
-			{
-				monitor.setNote("Applying rule " + ruleIndex++ + "/" + rules.size());
-				monitor.setProgress(0);
-			}
+			monitor.reset("Applying rule " + ruleIndex++ + "/" + rules.size());
 
 			Flags flag = new Flags(rule.getFlag());
 
@@ -458,7 +392,7 @@ public class Mailbox extends Observable implements Closeable
 				{
 					Email email = emails.get(i);
 					Message m = email.getMailboxReference();
-					if (monitor != null && i != monitor.getMaximum() - 1)
+					if (i != monitor.getMaximum() - 1)
 						monitor.setProgress(i + 1);
 
 					// add new flag
@@ -468,6 +402,7 @@ public class Mailbox extends Observable implements Closeable
 			} catch (MessagingException e)
 			{
 				Logging.severe("Could not apply rule to emails: " + rule, e);
+				monitor.reset("Failed to apply rules");
 			}
 		}
 
@@ -480,7 +415,7 @@ public class Mailbox extends Observable implements Closeable
 	 *
 	 * @param monitor The optional progress monitor to update
 	 */
-	public void gatherMail(ProgressMonitor monitor)
+	public void gatherMail(Worker.OptionalProgressMonitor monitor)
 	{
 		try
 		{
@@ -502,8 +437,40 @@ public class Mailbox extends Observable implements Closeable
 		notifyObservers();
 	}
 
+	/**
+	 * Fills the emails list with the Messages that should be displayed
+	 *
+	 * @param monitor An optional progress monitor
+	 */
+	private void parseEmails(Worker.OptionalProgressMonitor monitor) throws MessagingException
+	{
+		emails.clear();
+
+		monitor.reset("Processing emails", filteredMessages.length);
+
+
+		for (int i = 0, messagesLength = filteredMessages.length; i < messagesLength; i++)
+		{
+			Message message = filteredMessages[i];
+			Flags flags = message.getFlags();
+
+			String subject = message.getSubject();
+			String from = getSenders(message);
+			String to = getRecipients(message);
+			Date date = message.getReceivedDate();
+			boolean read = flags.contains(Flags.Flag.SEEN);
+			boolean recent = flags.contains(Flags.Flag.RECENT);
+			String[] userFlags = flags.getUserFlags();
+
+			Email email = new Email(subject, from, to, date, read, recent, userFlags, message);
+			addEmail(email);
+
+			monitor.update("Gathered " + (i + 1) + "/" + filteredMessages.length, i + 1);
+		}
+	}
+
 	public void gatherMail()
 	{
-		gatherMail(null);
+		gatherMail(Worker.OptionalProgressMonitor.EMPTY);
 	}
 }

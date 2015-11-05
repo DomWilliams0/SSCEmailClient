@@ -21,17 +21,69 @@ public abstract class Worker
 		monitor.setNote("Working...");
 		monitor.setProgress(0);
 
-		this.worker = new HardWorker(monitor, () -> Worker.this.work(monitor));
+		this.worker = new HardWorker(monitor, () -> Worker.this.work(new OptionalProgressMonitor(monitor)));
 		this.worker.probeForDialog();
 		this.worker.execute();
 	}
 
-	protected abstract void work(ProgressMonitor monitor);
+	protected abstract void work(OptionalProgressMonitor monitor);
 
 	protected void setIndeterminate(boolean indeterminate)
 	{
 		if (worker.progressBar != null)
 			worker.progressBar.setIndeterminate(indeterminate);
+	}
+
+	public static class OptionalProgressMonitor
+	{
+		public static final OptionalProgressMonitor EMPTY = new OptionalProgressMonitor();
+		private ProgressMonitor monitor;
+
+		public OptionalProgressMonitor()
+		{
+			this(null);
+		}
+
+		public OptionalProgressMonitor(ProgressMonitor monitor)
+		{
+			this.monitor = monitor;
+		}
+
+		public void reset(String note, int maximum)
+		{
+			if (exists())
+			{
+				monitor.setNote(note);
+				monitor.setMaximum(maximum);
+			}
+
+		}
+
+		public boolean exists() {return monitor != null;}
+
+		public void reset(String note)
+		{
+			update(note, 0);
+		}
+
+		public void update(String note, int nv)
+		{
+			if (exists())
+			{
+				monitor.setNote(note);
+				monitor.setProgress(nv);
+			}
+		}
+
+		public void setProgress(int nv) {if (exists()) monitor.setProgress(nv);}
+
+		public boolean isCanceled() {return exists() && monitor.isCanceled();}
+
+		public void setNote(String note) {if (exists()) monitor.setNote(note);}
+
+		public int getMaximum() {return monitor.getMaximum();}
+
+		public void setMaximum(int m) {if (exists()) monitor.setMaximum(m);}
 	}
 
 	private class HardWorker extends SwingWorker<Void, Void>
@@ -94,7 +146,6 @@ public abstract class Worker
 
 			return false;
 		}
-
 
 		@Override
 		protected Void doInBackground() throws Exception

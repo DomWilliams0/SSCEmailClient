@@ -4,8 +4,6 @@ import dxw405.EmailClient;
 import dxw405.Mailbox;
 import dxw405.util.Logging;
 
-import javax.swing.*;
-
 public class MailGatherer extends Worker
 {
 	private Mailbox mailbox;
@@ -18,13 +16,12 @@ public class MailGatherer extends Worker
 	}
 
 	@Override
-	protected void work(ProgressMonitor monitor)
+	protected void work(OptionalProgressMonitor monitor)
 	{
 		if (!mailbox.isConnected())
 		{
 			setIndeterminate(true);
-			monitor.setNote("Connecting to the mailbox...");
-			monitor.setProgress(0);
+			monitor.reset("Connecting to the mailbox...");
 
 			// connect
 			boolean success = emailClient.connectToMailbox(mailbox);
@@ -44,6 +41,7 @@ public class MailGatherer extends Worker
 		} catch (Exception e)
 		{
 			Logging.warning("Could not gather mail", e);
+			monitor.reset("Could not gather mail");
 		}
 
 	}

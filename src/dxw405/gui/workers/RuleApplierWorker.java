@@ -3,7 +3,6 @@ package dxw405.gui.workers;
 import dxw405.Mailbox;
 import dxw405.gui.panels.RulesPanel;
 
-import javax.swing.*;
 import java.util.Set;
 
 public class RuleApplierWorker extends Worker
@@ -16,7 +15,7 @@ public class RuleApplierWorker extends Worker
 	}
 
 	@Override
-	protected void work(ProgressMonitor monitor)
+	protected void work(OptionalProgressMonitor monitor)
 	{
 		mailbox.applyRules(rules, monitor);
 	}
