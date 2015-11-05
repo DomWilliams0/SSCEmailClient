@@ -19,6 +19,7 @@ public abstract class Worker
 	}
 
 	private HardWorker worker;
+	private Component toggleComponent;
 
 	public void run(Component parent)
 	{
@@ -66,6 +67,11 @@ public abstract class Worker
 			worker.monitor.setNote(message);
 			worker.optionPane.setMessageType(JOptionPane.ERROR_MESSAGE);
 		}
+	}
+
+	public void setToggleComponent(Component toggleComponent)
+	{
+		this.toggleComponent = toggleComponent;
 	}
 
 	public static class OptionalProgressMonitor
@@ -182,6 +188,9 @@ public abstract class Worker
 		@Override
 		protected Void doInBackground() throws Exception
 		{
+			if (toggleComponent != null)
+				toggleComponent.setEnabled(false);
+
 			task.run();
 			return null;
 		}
@@ -189,6 +198,9 @@ public abstract class Worker
 		@Override
 		protected void done()
 		{
+			if (toggleComponent != null)
+				toggleComponent.setEnabled(true);
+
 			INSTANCES.put(Worker.this.getClass(), null);
 		}
 	}

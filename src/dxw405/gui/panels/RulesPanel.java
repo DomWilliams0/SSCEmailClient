@@ -123,7 +123,11 @@ public class RulesPanel extends JPanel
 
 		// apply button
 		JButton apply = new JButton("Apply");
-		apply.addActionListener(e -> new RuleApplierWorker(mailbox, gatherRules()).run(this));
+		apply.addActionListener(e -> {
+			RuleApplierWorker worker = new RuleApplierWorker(mailbox, gatherRules());
+			worker.setToggleComponent(apply);
+			worker.run(this);
+		});
 		c.gridy = 1;
 		c.gridx = 0;
 		c.gridwidth = 2;

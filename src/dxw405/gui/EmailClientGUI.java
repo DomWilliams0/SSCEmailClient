@@ -7,6 +7,7 @@ import dxw405.gui.workers.MailGatherer;
 import dxw405.util.Logging;
 
 import javax.swing.*;
+import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
@@ -31,7 +32,7 @@ public class EmailClientGUI
 		// get mailbox
 		mailGatherer = new MailGatherer(mailbox, emailClient);
 		if (emailClient.getConfig().getBoolean("check-on-start"))
-			checkForMail();
+			checkForMail(null);
 	}
 
 	private void initGUI()
@@ -47,7 +48,18 @@ public class EmailClientGUI
 		show();
 	}
 
-	private void checkForMail() {mailGatherer.run(frame);}
+	private void checkForMail(Component toggleComponent)
+	{
+		if (toggleComponent != null)
+			mailGatherer.setToggleComponent(toggleComponent);
+
+		mailGatherer.run(frame);
+	}
+
+	private void checkForMail()
+	{
+		checkForMail(null);
+	}
 
 	/**
 	 * Creates the window of the size specified in the config and the given title
@@ -100,7 +112,7 @@ public class EmailClientGUI
 			@Override
 			public void actionPerformed(ActionEvent e)
 			{
-				checkForMail();
+				checkForMail((Component) e.getSource());
 			}
 		});
 

@@ -89,7 +89,11 @@ public class ControllerPanel extends JPanelMouseAdapter implements ActionListene
 
 			PreparedEmail email = emailComposePanel.prepareEmail();
 			if (email != null)
-				new MailSendWorker(mailbox, email).run(this);
+			{
+				MailSendWorker worker = new MailSendWorker(mailbox, email);
+				worker.setToggleComponent(sendButton);
+				worker.run(this);
+			}
 
 		}
 	}
