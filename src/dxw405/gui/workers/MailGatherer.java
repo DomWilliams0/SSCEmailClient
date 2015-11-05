@@ -20,16 +20,12 @@ public class MailGatherer extends Worker
 	{
 		if (!mailbox.isConnected())
 		{
-			setIndeterminate(true);
-			monitor.reset("Connecting to the mailbox...");
+			// try to connect
+			new ConnectWorker(mailbox, emailClient).work(monitor);
 
-			// connect
-			boolean success = emailClient.connectToMailbox(mailbox);
-			if (!success)
-			{
-				error("Could not connect");
+			if (!mailbox.isConnected())
 				return;
-			}
+
 		}
 
 		setIndeterminate(false);

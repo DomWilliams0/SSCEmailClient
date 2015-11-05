@@ -3,6 +3,7 @@ package dxw405.gui;
 import dxw405.EmailClient;
 import dxw405.Mailbox;
 import dxw405.gui.panels.ControllerPanel;
+import dxw405.gui.workers.ConnectWorker;
 import dxw405.gui.workers.MailGatherer;
 import dxw405.util.Logging;
 
@@ -31,6 +32,11 @@ public class EmailClientGUI
 
 		// get mailbox
 		mailGatherer = new MailGatherer(mailbox, emailClient);
+
+		// connect
+		new ConnectWorker(mailbox, emailClient).run(frame);
+
+		// check?
 		if (emailClient.getConfig().getBoolean("check-on-start"))
 			checkForMail(null);
 	}
