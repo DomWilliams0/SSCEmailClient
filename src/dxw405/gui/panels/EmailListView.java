@@ -3,6 +3,7 @@ package dxw405.gui.panels;
 import dxw405.Email;
 import dxw405.Mailbox;
 import dxw405.gui.EmailPopup;
+import dxw405.gui.TextFieldPlaceholder;
 import dxw405.util.JPanelMouseAdapter;
 
 import javax.swing.*;
@@ -50,29 +51,7 @@ public class EmailListView extends JPanelMouseAdapter implements Observer
 		JPanel panel = new JPanel(new GridBagLayout());
 
 		// text field
-		JTextField textField = new JTextField()
-		{
-			private static final String placeholder = "Search";
-
-			@Override
-			public void paintComponent(Graphics g)
-			{
-				super.paintComponent(g);
-				if (getText().length() == 0)
-				{
-					int h = getHeight();
-					((Graphics2D) g).setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-					Insets ins = getInsets();
-					FontMetrics fm = g.getFontMetrics();
-					int c0 = getBackground().getRGB();
-					int c1 = getForeground().getRGB();
-					int m = 0xfefefefe;
-					int c2 = ((c0 & m) >>> 1) + ((c1 & m) >>> 1);
-					g.setColor(new Color(c2, true));
-					g.drawString(placeholder, ins.left, h / 2 + fm.getAscent() / 2 - 2);
-				}
-			}
-		};
+		JTextField textField = new TextFieldPlaceholder("Search");
 
 		// enter: search
 		textField.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), new AbstractAction()
