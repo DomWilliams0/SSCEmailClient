@@ -170,137 +170,6 @@ public class Mailbox extends Observable implements Closeable
 
 	public boolean isConnected() {return connected;}
 
-	public void gatherMail()
-	{
-		gatherMail(null);
-	}
-
-	/**
-	 * Gathers all messages from the mailbox, updating the given (optional) progress monitor
-	 *
-	 * @param monitor The optional progress monitor to update
-	 */
-	public void gatherMail(ProgressMonitor monitor)
-	{
-		try
-		{
-			final int lastEmail = inbox.getMessageCount();
-			int firstEmail = maxEmails <= 0 ? 1 : lastEmail - maxEmails + 1;
-
-			allMessages = inbox.getMessages(firstEmail, lastEmail);
-			filteredMessages = new Message[allMessages.length];
-			System.arraycopy(allMessages, 0, filteredMessages, 0, filteredMessages.length);
-
-			parseEmails(monitor);
-
-		} catch (MessagingException e)
-		{
-			Logging.severe("Could not get messages", e);
-		}
-
-		setChanged();
-		notifyObservers();
-	}
-
-	/**
-	 * Fills the emails list with the Messages that should be displayed
-	 *
-	 * @param monitor An optional progress monitor
-	 */
-	private void parseEmails(ProgressMonitor monitor) throws MessagingException
-	{
-		emails.clear();
-
-		if (monitor != null)
-		{
-			monitor.setMaximum(filteredMessages.length);
-			monitor.setProgress(0);
-		}
-
-
-		for (int i = 0, messagesLength = filteredMessages.length; i < messagesLength; i++)
-		{
-			// cancelled early
-			if (monitor != null && monitor.isCanceled())
-			{
-				monitor.setNote("Cancelled");
-				Logging.info("Cancelled email collection");
-				break;
-			}
-
-			Message message = filteredMessages[i];
-			Flags flags = message.getFlags();
-
-			String subject = message.getSubject();
-			String from = getSenders(message);
-			String to = getRecipients(message);
-			Date date = message.getReceivedDate();
-			boolean read = flags.contains(Flags.Flag.SEEN);
-			boolean recent = flags.contains(Flags.Flag.RECENT);
-			String[] userFlags = flags.getUserFlags();
-
-			Email email = new Email(subject, from, to, date, read, recent, userFlags, message);
-			addEmail(email);
-
-			if (monitor != null)
-			{
-				monitor.setProgress(i + 1);
-				monitor.setNote("Gathered " + (i + 1) + "/" + filteredMessages.length);
-			}
-		}
-	}
-
-	private String getSenders(Message message)
-	{
-		try
-		{
-			Address[] addresses = message.getFrom();
-			if (addresses == null)
-				return "";
-
-			return concatEmails(addresses);
-
-		} catch (MessagingException e)
-		{
-			Logging.warning("Could not parse senders", e);
-			return "";
-		}
-	}
-
-	private String getRecipients(Message message)
-	{
-		try
-		{
-			Address[] addresses = message.getRecipients(Message.RecipientType.TO);
-			if (addresses == null)
-				return "";
-
-			return concatEmails(addresses);
-
-
-		} catch (MessagingException e)
-		{
-			Logging.warning("Could not parse recipients", e);
-			return "";
-		}
-	}
-
-	protected void addEmail(Email email) {emails.add(email);}
-
-	private String concatEmails(Address[] addresses)
-	{
-		StringBuilder sb = new StringBuilder();
-		for (int i = 0, addressesLength = addresses.length; i < addressesLength; i++)
-		{
-			InternetAddress from = (InternetAddress) addresses[i];
-			sb.append(from.getAddress());
-			if (i != addressesLength - 1)
-				sb.append(", ");
-		}
-
-		return sb.toString();
-	}
-
 	public List<Email> getEmails()
 	{
 		return emails;
@@ -427,8 +296,124 @@ public class Mailbox extends Observable implements Closeable
 		}
 	}
 
+	/**
+	 * Fills the emails list with the Messages that should be displayed
+	 *
+	 * @param monitor An optional progress monitor
+	 */
+	private void parseEmails(ProgressMonitor monitor) throws MessagingException
+	{
+		emails.clear();
+
+		if (monitor != null)
+		{
+			monitor.setMaximum(filteredMessages.length);
+			monitor.setProgress(0);
+		}
+
+
+		for (int i = 0, messagesLength = filteredMessages.length; i < messagesLength; i++)
+		{
+			// cancelled early
+			if (monitor != null && monitor.isCanceled())
+			{
+				monitor.setNote("Cancelled");
+				Logging.info("Cancelled email collection");
+				break;
+			}
+
+			Message message = filteredMessages[i];
+			Flags flags = message.getFlags();
+
+			String subject = message.getSubject();
+			String from = getSenders(message);
+			String to = getRecipients(message);
+			Date date = message.getReceivedDate();
+			boolean read = flags.contains(Flags.Flag.SEEN);
+			boolean recent = flags.contains(Flags.Flag.RECENT);
+			String[] userFlags = flags.getUserFlags();
+
+			Email email = new Email(subject, from, to, date, read, recent, userFlags, message);
+			addEmail(email);
+
+			if (monitor != null)
+			{
+				monitor.setProgress(i + 1);
+				monitor.setNote("Gathered " + (i + 1) + "/" + filteredMessages.length);
+			}
+		}
+	}
+
+	private String getSenders(Message message)
+	{
+		try
+		{
+			Address[] addresses = message.getFrom();
+			if (addresses == null)
+				return "";
+
+			return concatEmails(addresses);
+
+		} catch (MessagingException e)
+		{
+			Logging.warning("Could not parse senders", e);
+			return "";
+		}
+	}
+
+	private String getRecipients(Message message)
+	{
+		try
+		{
+			Address[] addresses = message.getRecipients(Message.RecipientType.TO);
+			if (addresses == null)
+				return "";
+
+			return concatEmails(addresses);
+
+
+		} catch (MessagingException e)
+		{
+			Logging.warning("Could not parse recipients", e);
+			return "";
+		}
+	}
+
+	protected void addEmail(Email email) {emails.add(email);}
+
+	private String concatEmails(Address[] addresses)
+	{
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0, addressesLength = addresses.length; i < addressesLength; i++)
+		{
+			InternetAddress from = (InternetAddress) addresses[i];
+			sb.append(from.getAddress());
+			if (i != addressesLength - 1)
+				sb.append(", ");
+		}
+
+		return sb.toString();
+	}
+
 	public void applyRules(Set<RulesPanel.Rule> rules)
 	{
+		// remove all user flags
+		try
+		{
+
+		for (Email email : emails)
+		{
+			Message m = email.getMailboxReference();
+			String[] userFlags = m.getFlags().getUserFlags();
+			for (String userFlag : userFlags)
+				m.setFlags(new Flags(userFlag), false);
+		}
+		} catch (MessagingException e)
+		{
+			Logging.severe("Could not remove all user flags", e);
+		}
+
+		// apply rules
 		for (RulesPanel.Rule rule : rules)
 		{
 			if (!rule.isValid())
@@ -440,12 +425,7 @@ public class Mailbox extends Observable implements Closeable
 			{
 				for (Email email : emails)
 				{
-						Message m = email.getMailboxReference();
-
-					// remove all flags
-					String[] userFlags = m.getFlags().getUserFlags();
-					for (String userFlag : userFlags)
-						m.setFlags(new Flags(userFlag), false);
+					Message m = email.getMailboxReference();
 
 					// add new flag
 					if (rule.satisfiedBy(email))
@@ -459,5 +439,37 @@ public class Mailbox extends Observable implements Closeable
 
 		Logging.fine("Applied " + rules.size() + " rules to " + emails.size() + " emails");
 		gatherMail();
+	}
+
+	public void gatherMail()
+	{
+		gatherMail(null);
+	}
+
+	/**
+	 * Gathers all messages from the mailbox, updating the given (optional) progress monitor
+	 *
+	 * @param monitor The optional progress monitor to update
+	 */
+	public void gatherMail(ProgressMonitor monitor)
+	{
+		try
+		{
+			final int lastEmail = inbox.getMessageCount();
+			int firstEmail = maxEmails <= 0 ? 1 : lastEmail - maxEmails + 1;
+
+			allMessages = inbox.getMessages(firstEmail, lastEmail);
+			filteredMessages = new Message[allMessages.length];
+			System.arraycopy(allMessages, 0, filteredMessages, 0, filteredMessages.length);
+
+			parseEmails(monitor);
+
+		} catch (MessagingException e)
+		{
+			Logging.severe("Could not get messages", e);
+		}
+
+		setChanged();
+		notifyObservers();
 	}
 }

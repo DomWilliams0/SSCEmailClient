@@ -11,6 +11,7 @@ public class EmailPreview extends JPanel
 	private JLabel from;
 	private JLabel to;
 	private JLabel sent;
+	private JLabel flags;
 	private JLabel subject;
 	private JTextPane content;
 	private AttachmentSelection attachments;
@@ -28,8 +29,12 @@ public class EmailPreview extends JPanel
 		from = new JLabel();
 		to = new JLabel();
 		sent = new JLabel();
+		flags = new JLabel();
+
 		subject = new JLabel();
 		subject.setFont(subject.getFont().deriveFont(Font.BOLD, 16f));
+
+
 		attachments = new AttachmentSelection(false);
 
 		GridBagConstraints c = new GridBagConstraints();
@@ -41,6 +46,7 @@ public class EmailPreview extends JPanel
 		header.add(from, c);
 		header.add(to, c);
 		header.add(sent, c);
+		header.add(flags, c);
 		header.add(subject, c);
 		headerContainer.add(header);
 
@@ -65,6 +71,7 @@ public class EmailPreview extends JPanel
 		from.setText(makeTitle("From", selected.getFrom()));
 		to.setText(makeTitle("To", selected.getTo()));
 		sent.setText(makeTitle("Sent", selected.getDate()));
+		flags.setText(selected.getFlags());
 		subject.setText(selected.getSubject());
 
 		Email.EmailContent emailContent = selected.getContent();

@@ -10,6 +10,7 @@ import javax.mail.Multipart;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * String representation of an email message
@@ -116,6 +117,18 @@ public class Email
 				", read=" + read +
 				", recent=" + recent +
 				'}';
+	}
+
+	public void addFlag(String flag)
+	{
+		userFlags.add(flag);
+	}
+
+	public String getFlags()
+	{
+		if (userFlags.isEmpty())
+			return "";
+		return "<html><b>Flags: </b>" + String.join(", ", userFlags.stream().map(String::toLowerCase).collect(Collectors.toList())) + "</html>";
 	}
 
 	public class EmailContent
