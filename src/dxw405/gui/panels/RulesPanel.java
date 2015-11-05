@@ -1,8 +1,13 @@
 package dxw405.gui.panels;
 
+import dxw405.Email;
 import dxw405.Mailbox;
 import dxw405.gui.TextFieldPlaceholder;
 
+import javax.mail.search.BodyTerm;
+import javax.mail.search.OrTerm;
+import javax.mail.search.SearchTerm;
+import javax.mail.search.SubjectTerm;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
@@ -182,8 +187,8 @@ public class RulesPanel extends JPanel
 
 	public class Rule
 	{
-		String flag;
-		String keyword;
+		private String flag;
+		private String keyword;
 
 		public Rule(String flag, String keyword)
 		{
@@ -204,6 +209,17 @@ public class RulesPanel extends JPanel
 					", keyword='" + keyword + '\'' +
 					'}';
 		}
+
+		public boolean satisfiedBy(Email email)
+		{
+			SearchTerm st = new OrTerm(new SubjectTerm(keyword), new BodyTerm(keyword));
+			return st.match(email.getMailboxReference());
+		}
+
+		public String getFlag()
+		{
+			return flag;
+		}
 	}
 
 	private class RulePanel extends JPanel
@@ -220,15 +236,6 @@ public class RulesPanel extends JPanel
 			this.keywordField = null;
 		}
 
-		public Rule getRule()
-		{
-			return rule;
-		}
-
-		public JTextField getFlagField()
-		{
-			return flagField;
-		}
 
 		public void setFlagField(JTextField flagField)
 		{
@@ -236,10 +243,6 @@ public class RulesPanel extends JPanel
 			this.flagField.setText(rule.flag);
 		}
 
-		public JTextField getKeywordField()
-		{
-			return keywordField;
-		}
 
 		public void setKeywordField(JTextField keywordField)
 		{

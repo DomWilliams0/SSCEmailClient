@@ -433,8 +433,23 @@ public class Mailbox extends Observable implements Closeable
 			if (!rule.isValid())
 				continue;
 
-			// todo
-			Logging.fine("Applying rule: " + rule);
+			Flags flag = new Flags(rule.getFlag());
+
+			try
+			{
+				for (Email email : emails)
+				{
+					boolean satisfied = rule.satisfiedBy(email);
+					email.getMailboxReference().setFlags(flag, satisfied);
+				}
+			} catch (MessagingException e)
+			{
+				Logging.severe("Could not apply rule to emails: " + rule, e);
+			}
 		}
+
+		Logging.fine("Applied " + rules.size() + " rules to " + emails.size() + " emails");
+		setChanged();
+		notifyObservers();
 	}
 }
