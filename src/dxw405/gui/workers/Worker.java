@@ -1,13 +1,20 @@
 package dxw405.gui.workers;
 
+import dxw405.util.Logging;
+
 import javax.swing.*;
 import java.awt.Component;
 import java.awt.Container;
+import java.util.HashMap;
+import java.util.Map;
 
 public abstract class Worker
 {
+	private static final Map<Class<? extends Worker>, Worker> INSTANCES;
+
 	static
 	{
+		INSTANCES = new HashMap<>();
 		UIManager.put("ProgressMonitor.progressText", "Working...");
 	}
 
@@ -15,15 +22,31 @@ public abstract class Worker
 
 	public void run(Component parent)
 	{
+		// already running
+		Class<? extends Worker> clazz = getClass();
+		Worker currentWorker = INSTANCES.get(clazz);
+		if (currentWorker != null)
+		{
+			Logging.fine(clazz.getSimpleName() + " is already running");
+
+			SwingUtilities.invokeLater(() -> {
+				currentWorker.worker.dialog.toFront();
+				currentWorker.worker.dialog.repaint();
+			});
+
+			return;
+		}
+		INSTANCES.put(clazz, this);
+
 		ProgressMonitor monitor = new ProgressMonitor(parent, null, null, 0, 100);
 		monitor.setMillisToDecideToPopup(0);
 		monitor.setMillisToPopup(0);
 		monitor.setNote("Working...");
 		monitor.setProgress(0);
 
-		this.worker = new HardWorker(monitor, () -> Worker.this.work(new OptionalProgressMonitor(monitor)));
-		this.worker.probeForDialog();
-		this.worker.execute();
+		worker = new HardWorker(monitor, () -> Worker.this.work(new OptionalProgressMonitor(monitor)));
+		worker.probeForDialog();
+		worker.execute();
 	}
 
 	protected abstract void work(OptionalProgressMonitor monitor);
@@ -56,7 +79,6 @@ public abstract class Worker
 				monitor.setNote(note);
 				monitor.setMaximum(maximum);
 			}
-
 		}
 
 		public boolean exists() {return monitor != null;}
@@ -77,13 +99,9 @@ public abstract class Worker
 
 		public void setProgress(int nv) {if (exists()) monitor.setProgress(nv);}
 
-		public boolean isCanceled() {return exists() && monitor.isCanceled();}
-
 		public void setNote(String note) {if (exists()) monitor.setNote(note);}
 
 		public int getMaximum() {return monitor.getMaximum();}
-
-		public void setMaximum(int m) {if (exists()) monitor.setMaximum(m);}
 	}
 
 	private class HardWorker extends SwingWorker<Void, Void>
@@ -91,6 +109,7 @@ public abstract class Worker
 		private ProgressMonitor monitor;
 		private Runnable task;
 
+		private JDialog dialog;
 		private JProgressBar progressBar;
 		private JOptionPane optionPane;
 
@@ -98,6 +117,7 @@ public abstract class Worker
 		{
 			this.monitor = monitor;
 			this.task = task;
+			this.dialog = null;
 			this.progressBar = null;
 			this.optionPane = null;
 		}
@@ -106,8 +126,9 @@ public abstract class Worker
 		{
 			if (progressBar == null)
 			{
-				// get progress bar
-				recurse((JDialog) monitor.getAccessibleContext().getAccessibleParent(), false);
+				dialog = (JDialog) monitor.getAccessibleContext().getAccessibleParent();
+				dialog.setResizable(false);
+				recurse(dialog, false);
 			}
 		}
 
@@ -124,7 +145,7 @@ public abstract class Worker
 				if (!cancelButtonDone && child instanceof JButton && ((JButton) child).getText().equals("Cancel"))
 				{
 					cancelButtonDone = true;
-					child.setVisible(false);
+					((JButton) child).setText("Hide");
 				}
 
 				// progress bar
@@ -152,6 +173,12 @@ public abstract class Worker
 		{
 			task.run();
 			return null;
+		}
+
+		@Override
+		protected void done()
+		{
+			INSTANCES.put(Worker.this.getClass(), null);
 		}
 	}
 }
