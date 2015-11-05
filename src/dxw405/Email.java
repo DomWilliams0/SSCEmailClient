@@ -116,6 +116,7 @@ public class Email
 				", date=" + date +
 				", read=" + read +
 				", recent=" + recent +
+				", userFlags=" + userFlags +
 				'}';
 	}
 
