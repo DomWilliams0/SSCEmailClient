@@ -6,23 +6,25 @@ import dxw405.gui.TextFieldPlaceholder;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 public class RulesPanel extends JPanel
 {
 	private static final EmptyBorder BORDER = new EmptyBorder(2, 2, 2, 2);
 
 	private Mailbox mailbox;
-	private JPanel ruleList;
-	private List<Rule> rules;
+	private JPanel ruleList, controlPanel;
+	private Map<Rule, JPanel> rules;
 
 	private GridBagConstraints constraints;
 
 	public RulesPanel(Mailbox mailbox)
 	{
 		this.mailbox = mailbox;
-		this.rules = new ArrayList<>();
+		this.rules = new LinkedHashMap<>();
 
 		// create list panel
 		ruleList = new JPanel(new GridBagLayout());
@@ -40,29 +42,87 @@ public class RulesPanel extends JPanel
 
 		// default rule
 		addRule("Spam", "lucky winner");
+
 		addRuleSpace();
+		addRuleControl();
 	}
 
 	private void addRule(String flag, String keyword)
 	{
 		Rule r = new Rule(flag, keyword);
-		if (r.isValid())
-			rules.add(r);
 
 		JPanel rulePanel = createRulePanel(r);
-		ruleList.add(rulePanel, constraints);
+		addToList(rulePanel);
+
+		if (r.isValid())
+			rules.put(r, rulePanel);
 
 		rulePanel.repaint();
 	}
 
 	private void addRuleSpace()
 	{
-		addRule("", "");
+		addRule(null, null);
+	}
+
+	private void addRuleControl()
+	{
+		ActionListener addRemoveListener = new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent e)
+			{
+				boolean remove = e.getActionCommand().equals("-");
+				int count = ruleList.getComponentCount();
+
+				if (remove)
+				{
+					count -= 2; // - 2 for +/- and placeholder
+
+					// empty
+					if (count <= 0)
+						return;
+
+					int compIndex = count - 1;
+
+					Rule rule = ((RulePanel) ruleList.getComponent(compIndex)).rule;
+					rules.remove(rule);
+
+					ruleList.remove(compIndex);
+					ruleList.revalidate();
+				} else
+				{
+					// remove control and re-add
+					ruleList.remove(count - 1);
+
+					addRule("", "");
+
+					addToList(controlPanel);
+
+					revalidate();
+				}
+
+			}
+		};
+
+		controlPanel = new JPanel();
+
+		JButton plus = new JButton("+");
+		plus.setActionCommand("+");
+		plus.addActionListener(addRemoveListener);
+		controlPanel.add(plus);
+
+		JButton minus = new JButton("-");
+		minus.setActionCommand("-");
+		minus.addActionListener(addRemoveListener);
+		controlPanel.add(minus);
+
+		addToList(controlPanel);
 	}
 
 	private JPanel createRulePanel(Rule rule)
 	{
-		JPanel rulePanel = new JPanel(new GridLayout(1, 3));
+		JPanel rulePanel = new RulePanel(new GridLayout(1, 3), rule);
 		rulePanel.setBorder(BORDER);
 
 		JTextField flag = new TextFieldPlaceholder("Flag Name");
@@ -86,6 +146,16 @@ public class RulesPanel extends JPanel
 		return rulePanel;
 	}
 
+	/**
+	 * Helper method to add the given component to the end of the rules list
+	 *
+	 * @param component The component to add
+	 */
+	private void addToList(Component component)
+	{
+		ruleList.add(component, constraints);
+	}
+
 	private class Rule
 	{
 		String flag;
@@ -101,7 +171,28 @@ public class RulesPanel extends JPanel
 		{
 			return flag != null && keyword != null;
 		}
+
+		@Override
+		public String toString()
+		{
+			return "Rule{" +
+					"flag='" + flag + '\'' +
+					", keyword='" + keyword + '\'' +
+					'}';
+		}
 	}
+
+	private class RulePanel extends JPanel
+	{
+		private Rule rule;
+
+		public RulePanel(LayoutManager layout, Rule rule)
+		{
+			super(layout);
+			this.rule = rule;
+		}
+	}
+
 
 }
 
