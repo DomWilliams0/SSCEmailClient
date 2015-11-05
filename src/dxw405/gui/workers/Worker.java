@@ -57,6 +57,17 @@ public abstract class Worker
 			worker.progressBar.setIndeterminate(indeterminate);
 	}
 
+	protected void error(String message)
+	{
+		if (worker.progressBar != null) {
+
+			worker.progressBar.setIndeterminate(false);
+			worker.progressBar.setValue(0);
+			worker.monitor.setNote(message);
+			worker.optionPane.setMessageType(JOptionPane.ERROR_MESSAGE);
+		}
+	}
+
 	public static class OptionalProgressMonitor
 	{
 		public static final OptionalProgressMonitor EMPTY = new OptionalProgressMonitor();

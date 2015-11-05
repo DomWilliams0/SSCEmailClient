@@ -3,10 +3,9 @@ package dxw405.gui.panels;
 import dxw405.Email;
 import dxw405.Mailbox;
 import dxw405.PreparedEmail;
+import dxw405.gui.workers.MailSendWorker;
 import dxw405.util.JPanelMouseAdapter;
-import dxw405.util.Logging;
 
-import javax.mail.MessagingException;
 import javax.swing.*;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -87,28 +86,11 @@ public class ControllerPanel extends JPanelMouseAdapter implements ActionListene
 		if (event.getActionCommand().equals(EmailComposePanel.SEND_COMMAND))
 		{
 			JButton sendButton = (JButton) event.getSource();
-			sendButton.setEnabled(false);
 
 			PreparedEmail email = emailComposePanel.prepareEmail();
 			if (email != null)
-			{
-				try
-				{
-					mailbox.sendEmail(email);
-					JOptionPane.showMessageDialog(this, "Message sent!", "Success", JOptionPane.INFORMATION_MESSAGE);
-				} catch (MessagingException e)
-				{
-					Logging.severe("Could not send message", e);
-					JOptionPane.showMessageDialog(this, "The message could not be sent:\n" + e.getMessage(), "Failure", JOptionPane.ERROR_MESSAGE);
-				} finally
-				{
-					// just in case
-					sendButton.setEnabled(true);
-				}
+				new MailSendWorker(mailbox, email).run(this);
 
-			}
-
-			sendButton.setEnabled(true);
 		}
 	}
 }

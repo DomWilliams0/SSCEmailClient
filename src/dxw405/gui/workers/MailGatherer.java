@@ -27,7 +27,7 @@ public class MailGatherer extends Worker
 			boolean success = emailClient.connectToMailbox(mailbox);
 			if (!success)
 			{
-				monitor.setNote("Could not connect!");
+				error("Could not connect");
 				return;
 			}
 		}
@@ -41,7 +41,7 @@ public class MailGatherer extends Worker
 		} catch (Exception e)
 		{
 			Logging.warning("Could not gather mail", e);
-			monitor.reset("Could not gather mail");
+			error("Could not gather mail");
 		}
 
 	}
