@@ -6,7 +6,6 @@ import dxw405.gui.TextFieldPlaceholder;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -67,42 +66,37 @@ public class RulesPanel extends JPanel
 
 	private void addRuleControl()
 	{
-		ActionListener addRemoveListener = new ActionListener()
-		{
-			@Override
-			public void actionPerformed(ActionEvent e)
+		ActionListener addRemoveListener = e -> {
+			boolean remove = e.getActionCommand().equals("-");
+			int count = ruleList.getComponentCount();
+
+			if (remove)
 			{
-				boolean remove = e.getActionCommand().equals("-");
-				int count = ruleList.getComponentCount();
+				count -= 2; // - 2 for +/- and placeholder
 
-				if (remove)
-				{
-					count -= 2; // - 2 for +/- and placeholder
+				// empty
+				if (count <= 0)
+					return;
 
-					// empty
-					if (count <= 0)
-						return;
+				int compIndex = count - 1;
 
-					int compIndex = count - 1;
+				Rule rule = ((RulePanel) ruleList.getComponent(compIndex)).rule;
+				rules.remove(rule);
 
-					Rule rule = ((RulePanel) ruleList.getComponent(compIndex)).rule;
-					rules.remove(rule);
+				ruleList.remove(compIndex);
+				ruleList.revalidate();
+			} else
+			{
+				// remove control and re-add
+				ruleList.remove(count - 1);
 
-					ruleList.remove(compIndex);
-					ruleList.revalidate();
-				} else
-				{
-					// remove control and re-add
-					ruleList.remove(count - 1);
+				addRule("", "");
 
-					addRule("", "");
+				addToList(controlPanel);
 
-					addToList(controlPanel);
-
-					revalidate();
-				}
-
+				revalidate();
 			}
+
 		};
 
 		controlPanel = new JPanel();
