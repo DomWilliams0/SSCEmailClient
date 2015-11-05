@@ -2,32 +2,38 @@ package dxw405.gui;
 
 import dxw405.Email;
 import dxw405.Mailbox;
+import dxw405.util.JPanelMouseAdapter;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.*;
 import java.util.List;
 
-public class EmailListView extends JPanel implements Observer
+public class EmailListView extends JPanelMouseAdapter implements Observer
 {
 	private Mailbox mailbox;
 	private JList<Email> emailList;
 	private JScrollPane scrollPane;
 	private String lastSearch;
 
-	public EmailListView(MouseListener mouseListener, Mailbox mailbox)
+	private EmailPopup emailPopup;
+
+	public EmailListView(MouseListener emailSelectListener, Mailbox mailbox)
 	{
 		this.mailbox = mailbox;
 		this.lastSearch = null;
+		this.emailPopup = new EmailPopup(mailbox);
 
 		emailList = new JList<>();
 		emailList.setModel(new EmailListModel());
 		emailList.setCellRenderer(new EmailListRenderer());
 		emailList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		emailList.addMouseListener(mouseListener);
+		emailList.addMouseListener(emailSelectListener);
+		emailList.addMouseListener(this);
 
 		scrollPane = new JScrollPane(emailList);
 		scrollPane.getVerticalScrollBar().setUnitIncrement(10);
@@ -107,15 +113,54 @@ public class EmailListView extends JPanel implements Observer
 	@Override
 	public void update(Observable o, Object arg)
 	{
-		JPanel scrollingPanel = new JPanel();
-		scrollingPanel.setLayout(new BoxLayout(scrollingPanel, BoxLayout.Y_AXIS));
-		((EmailListModel) emailList.getModel()).reset(mailbox.getEmails());
+		EmailListModel model = (EmailListModel) emailList.getModel();
+
+		// single email
+		if (arg != null && arg instanceof Email)
+		{
+			model.reset((Email) arg);
+		}
+
+		// reset all
+		else
+		{
+			model.reset(mailbox.getEmails());
+		}
 	}
 
 	public void updateElement(int index)
 	{
 		((EmailListModel) emailList.getModel()).updateElement(index);
 
+	}
+
+	@Override
+	public void mousePressed(MouseEvent e)
+	{
+		onRightClick(e);
+	}
+
+	private void onRightClick(MouseEvent e)
+	{
+		if (!e.isPopupTrigger())
+			return;
+
+		int selectedIndex = emailList.locationToIndex(e.getPoint());
+		if (selectedIndex < 0)
+			return;
+
+		emailList.setSelectedIndex(selectedIndex);
+		Email email = emailList.getSelectedValue();
+		if (email == null)
+			return;
+
+		emailPopup.display(e, email);
+	}
+
+	@Override
+	public void mouseReleased(MouseEvent e)
+	{
+		onRightClick(e);
 	}
 
 	class EmailListModel extends DefaultListModel<Email>
@@ -126,6 +171,13 @@ public class EmailListView extends JPanel implements Observer
 		public EmailListModel()
 		{
 			emails = new ArrayList<>();
+		}
+
+		public void reset(Email email)
+		{
+			int index = emails.indexOf(email);
+			if (index >= 0)
+				fireContentsChanged(this, index, index);
 		}
 
 		public void reset(List<Email> newEmails)

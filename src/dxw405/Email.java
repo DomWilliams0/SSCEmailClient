@@ -87,9 +87,9 @@ public class Email
 		return recent;
 	}
 
-	public void setAsRead()
+	public void setAsRead(boolean read)
 	{
-		read = true;
+		this.read = read;
 	}
 
 	public Message getMailboxReference()

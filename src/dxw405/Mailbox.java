@@ -306,12 +306,20 @@ public class Mailbox extends Observable implements Closeable
 
 	public void setAsRead(Email email)
 	{
+		setAsRead(email, true);
+	}
+
+	public void setAsRead(Email email, boolean read)
+	{
 		try
 		{
-			email.setAsRead();
+			email.setAsRead(read);
 			Message mailboxReference = email.getMailboxReference();
 			if (mailboxReference != null)
-				mailboxReference.setFlag(Flags.Flag.SEEN, true);
+				mailboxReference.setFlag(Flags.Flag.SEEN, read);
+
+			setChanged();
+			notifyObservers(email);
 		} catch (MessagingException e)
 		{
 			Logging.severe("Could not mark email as read", e);
