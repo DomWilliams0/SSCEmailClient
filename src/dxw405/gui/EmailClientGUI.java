@@ -29,7 +29,8 @@ public class EmailClientGUI
 
 		// get mailbox
 		mailGatherer = new MailGatherer(mailbox, emailClient);
-		checkForMail();
+		if (emailClient.getConfig().getBoolean("check-on-start"))
+			checkForMail();
 	}
 
 	private void initGUI()
