@@ -1,95 +1,56 @@
-package dxw405.gui;
-
-import dxw405.EmailClient;
-import dxw405.Mailbox;
-import dxw405.util.Logging;
+package dxw405.gui.workers;
 
 import javax.swing.*;
 import java.awt.Component;
 import java.awt.Container;
 
-public class MailGatherer
+public abstract class Worker
 {
 	static
 	{
 		UIManager.put("ProgressMonitor.progressText", "Working...");
 	}
 
-	private Mailbox mailbox;
-	private EmailClient emailClient;
-
-	public MailGatherer(Mailbox mailbox, EmailClient emailClient)
-	{
-		this.mailbox = mailbox;
-		this.emailClient = emailClient;
-	}
+	private HardWorker worker;
 
 	public void run(Component parent)
 	{
 		ProgressMonitor monitor = new ProgressMonitor(parent, null, null, 0, 100);
-		monitor.setMillisToPopup(0);
 		monitor.setMillisToDecideToPopup(0);
+		monitor.setMillisToPopup(0);
 		monitor.setNote("Working...");
 		monitor.setProgress(0);
 
-		Worker worker = new Worker(monitor);
-		worker.findDialogComponents();
-		worker.execute();
+		this.worker = new HardWorker(monitor, () -> Worker.this.work(monitor));
+		this.worker.probeForDialog();
+		this.worker.execute();
 	}
 
-	private class Worker extends SwingWorker<Boolean, Void>
+	protected abstract void work(ProgressMonitor monitor);
+
+	protected void setIndeterminate(boolean indeterminate)
+	{
+		if (worker.progressBar != null)
+			worker.progressBar.setIndeterminate(indeterminate);
+	}
+
+	private class HardWorker extends SwingWorker<Void, Void>
 	{
 		private ProgressMonitor monitor;
+		private Runnable task;
 
 		private JProgressBar progressBar;
 		private JOptionPane optionPane;
 
-		public Worker(ProgressMonitor monitor)
+		public HardWorker(ProgressMonitor monitor, Runnable task)
 		{
 			this.monitor = monitor;
+			this.task = task;
 			this.progressBar = null;
 			this.optionPane = null;
 		}
 
-		@Override
-		protected Boolean doInBackground()
-		{
-			if (!mailbox.isConnected())
-			{
-				setIndeterminate(true);
-				monitor.setNote("Connecting to the mailbox...");
-				monitor.setProgress(0);
-
-				// connect
-				boolean success = emailClient.connectToMailbox(mailbox);
-				if (!success)
-				{
-					monitor.setNote("Could not connect!");
-					return Boolean.FALSE;
-				}
-			}
-
-			setIndeterminate(false);
-
-			monitor.setNote("Gathering mail...");
-			try
-			{
-				mailbox.gatherMail(monitor);
-			} catch (Exception e)
-			{
-				Logging.warning("Could not gather mail", e);
-				return Boolean.FALSE;
-			}
-
-			return Boolean.TRUE;
-		}
-
-		private void setIndeterminate(boolean indeterminate)
-		{
-			progressBar.setIndeterminate(indeterminate);
-		}
-
-		private void findDialogComponents()
+		private void probeForDialog()
 		{
 			if (progressBar == null)
 			{
@@ -135,5 +96,11 @@ public class MailGatherer
 		}
 
 
+		@Override
+		protected Void doInBackground() throws Exception
+		{
+			task.run();
+			return null;
+		}
 	}
 }

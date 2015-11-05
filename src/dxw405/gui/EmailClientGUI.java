@@ -3,6 +3,7 @@ package dxw405.gui;
 import dxw405.EmailClient;
 import dxw405.Mailbox;
 import dxw405.gui.panels.ControllerPanel;
+import dxw405.gui.workers.MailGatherer;
 import dxw405.util.Logging;
 
 import javax.swing.*;
