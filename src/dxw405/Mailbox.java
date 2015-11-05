@@ -264,7 +264,7 @@ public class Mailbox extends Observable implements Closeable
 	public void search(String term)
 	{
 		SearchTerm st;
-		if (term == null)
+		if (term == null || term.isEmpty())
 		{
 			st = new SearchTerm()
 			{
