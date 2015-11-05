@@ -37,7 +37,9 @@ public class RulesPanel extends JPanel
 		// put rule list in a container anchored to the top
 		JPanel ruleContainer = new JPanel(new BorderLayout());
 		ruleContainer.add(ruleList, BorderLayout.NORTH);
-		add(new JScrollPane(ruleContainer));
+		JScrollPane scrollPane = new JScrollPane(ruleContainer);
+		scrollPane.getVerticalScrollBar().addAdjustmentListener(e -> e.getAdjustable().setValue(e.getAdjustable().getMaximum()));
+		add(scrollPane);
 
 		// default rule
 		addRule("Spam", "lucky winner");
