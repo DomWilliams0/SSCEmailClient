@@ -33,6 +33,7 @@ public class ControllerPanel extends JPanelMouseAdapter implements ActionListene
 
 		tabbedPane.addTab("Mailbox", createMailboxTab());
 		tabbedPane.addTab("Compose", emailComposePanel);
+		tabbedPane.addTab("Rules", new RulesPanel(mailbox));
 
 		// add observer
 		mailbox.addObserver(emailListView);
