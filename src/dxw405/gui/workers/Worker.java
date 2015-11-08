@@ -54,6 +54,7 @@ public abstract class Worker
 
 	protected void setIndeterminate(boolean indeterminate)
 	{
+		// todo move to progress monitor
 		if (worker.progressBar != null)
 			worker.progressBar.setIndeterminate(indeterminate);
 	}
@@ -67,6 +68,12 @@ public abstract class Worker
 			worker.monitor.setNote(message);
 			worker.optionPane.setMessageType(JOptionPane.ERROR_MESSAGE);
 		}
+	}
+
+	protected void error(String message, Exception e)
+	{
+		error(message);
+		Logging.severe(message, e);
 	}
 
 	public void setToggleComponent(Component toggleComponent)
@@ -119,6 +126,12 @@ public abstract class Worker
 		public void setNote(String note) {if (exists()) monitor.setNote(note);}
 
 		public int getMaximum() {return monitor.getMaximum();}
+
+		public void close()
+		{
+			if (exists())
+				monitor.close();
+		}
 	}
 
 	private class HardWorker extends SwingWorker<Void, Void>
@@ -202,6 +215,8 @@ public abstract class Worker
 				toggleComponent.setEnabled(true);
 
 			INSTANCES.put(Worker.this.getClass(), null);
+
+			monitor.close();
 		}
 	}
 }
