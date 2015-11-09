@@ -286,7 +286,7 @@ public class Mailbox extends Observable implements Closeable
 		{
 			Logging.fine("Searching for '" + term + "'");
 			filteredMessages = inbox.search(st, allMessages);
-			parseEmails(null);
+			parseEmails(Worker.OptionalProgressMonitor.EMPTY);
 
 			setChanged();
 			notifyObservers();
@@ -444,6 +444,8 @@ public class Mailbox extends Observable implements Closeable
 	 */
 	private void parseEmails(Worker.OptionalProgressMonitor monitor) throws MessagingException
 	{
+		assert monitor != null;
+
 		emails.clear();
 
 		monitor.reset("Processing emails", filteredMessages.length);
