@@ -420,7 +420,7 @@ public class Mailbox extends Observable implements Closeable
 		try
 		{
 			final int lastEmail = inbox.getMessageCount();
-			int firstEmail = maxEmails <= 0 ? 1 : lastEmail - maxEmails + 1;
+			int firstEmail = maxEmails <= 0 ? 1 : Math.max(1, lastEmail - maxEmails + 1);
 
 			allMessages = inbox.getMessages(firstEmail, lastEmail);
 			filteredMessages = new Message[allMessages.length];
