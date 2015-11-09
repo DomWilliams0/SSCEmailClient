@@ -257,10 +257,6 @@ public class EmailListView extends JPanelMouseAdapter implements Observer
 			date.setText(display(value.getDate()));
 			from.setText(display(value.getFrom()));
 
-			// recent flag
-			if (value.isRecent())
-				value.addFlag("recent");
-
 			meta.setText(value.getFlags());
 
 			return this;
