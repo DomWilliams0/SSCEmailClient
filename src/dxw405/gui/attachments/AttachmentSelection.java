@@ -9,6 +9,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -24,6 +25,7 @@ public class AttachmentSelection extends JPanelMouseAdapter implements ActionLis
 	private Email email;
 	private LinkedHashMap<String, File> attachments;
 	private JPanel attachmentPanel;
+	private JPanel expander; 
 	private JButton addButton;
 	private JFileChooser fileChooser;
 
@@ -54,11 +56,16 @@ public class AttachmentSelection extends JPanelMouseAdapter implements ActionLis
 			addButton.addActionListener(this);
 			attachmentPanel.add(addButton);
 		}
+		
+		// expander
+		expander = new JPanel();
+		expander.add(Box.createVerticalStrut(20));
+		expander.setPreferredSize(new Dimension(0, expander.getPreferredSize().height));
+		attachmentPanel.add(expander);
 
 		JScrollPane scrollPane = new JScrollPane(attachmentPanel);
 		scrollPane.setBorder(new EmptyBorder(0, 0, 0, 0));
 		scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
-		scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
 
 		add(scrollPane, BorderLayout.CENTER);
 	}
@@ -93,8 +100,11 @@ public class AttachmentSelection extends JPanelMouseAdapter implements ActionLis
 	public void refresh()
 	{
 		attachmentPanel.removeAll();
+		
+		// repopulate
 		if (editable)
 			attachmentPanel.add(addButton);
+		attachmentPanel.add(expander);
 
 		itemCacheBuffer.clear();
 
