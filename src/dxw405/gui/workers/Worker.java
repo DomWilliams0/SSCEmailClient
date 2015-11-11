@@ -7,6 +7,7 @@ import java.awt.Component;
 import java.awt.Container;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 public abstract class Worker
 {
@@ -79,6 +80,17 @@ public abstract class Worker
 	public void setToggleComponent(Component toggleComponent)
 	{
 		this.toggleComponent = toggleComponent;
+	}
+	
+	public void waitUntilDone()
+	{
+		try
+		{
+			worker.get();
+		} catch (InterruptedException | ExecutionException e) 
+		{
+			Logging.severe("Could not wait until " + getClass().getSimpleName()+ " is done", e);
+		}
 	}
 
 	public static class OptionalProgressMonitor
