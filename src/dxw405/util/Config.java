@@ -37,6 +37,17 @@ public class Config
 		}
 	}
 
+	public int getInt(String key, int defaultValue)
+	{
+		try
+		{
+			return getInt(key);
+		} catch (IllegalArgumentException e)
+		{
+			return defaultValue;
+		}
+	}
+	
 	public int getInt(String key)
 	{
 		String value = get(key);
@@ -49,6 +60,17 @@ public class Config
 			throw new IllegalArgumentException("Cannot get integer from config (" + key + "=" + value + ")");
 		}
 	}
+	
+	public String get(String key, String defaultValue)
+	{
+		try
+		{
+			return get(key);
+		} catch (IllegalArgumentException e)
+		{
+			return defaultValue;
+		}
+	}
 
 	public String get(String key)
 	{
@@ -58,7 +80,18 @@ public class Config
 
 		return value;
 	}
-
+	
+	public boolean getBoolean(String key, boolean defaultValue)
+	{
+		try
+		{
+			return getBoolean(key);
+		} catch (IllegalArgumentException e)
+		{
+			return defaultValue;
+		}
+	}
+	
 	public boolean getBoolean(String key)
 	{
 		String value = get(key);

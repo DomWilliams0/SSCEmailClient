@@ -70,10 +70,10 @@ public class EmailClient
 		}
 
 		String inHost = creds.get("incoming-server");
-		int inPort = creds.getInt("incoming-port");
+		int inPort = creds.getInt("incoming-port", 993);
 
 		String outHost = creds.get("outgoing-server");
-		String outPort = creds.get("outgoing-port");
+		int outPort = creds.getInt("outgoing-port", 587);
 
 		String user = creds.get("address");
 		String password = creds.get("password");

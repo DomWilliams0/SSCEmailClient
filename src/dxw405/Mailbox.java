@@ -106,7 +106,7 @@ public class Mailbox extends Observable implements Closeable
 	 * @param user     The email address
 	 * @param password The password   @return If the operation was successful
 	 */
-	public boolean connect(String host, int port, String outHost, String outPort, String user, String password)
+	public boolean connect(String host, int port, String outHost, int outPort, String user, String password)
 	{
 		// connection properties
 		Properties connProps = System.getProperties();
