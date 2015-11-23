@@ -18,7 +18,7 @@ public class MailGatherer extends Worker
 	@Override
 	protected void work(OptionalProgressMonitor monitor)
 	{
-		if (!mailbox.isConnected() || true)
+		if (!mailbox.isConnected())
 		{
 			// try to connect
 			ConnectWorker connectWorker = new ConnectWorker(mailbox, emailClient);
